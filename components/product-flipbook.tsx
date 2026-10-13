@@ -62,7 +62,7 @@ export function ProductFlipbook({ locale }: { locale: Locale }) {
               </div>
             </div>
           </div>
-          <div className="book-page book-right">
+          <div className={turning ? "book-page book-right is-changing" : "book-page book-right"}>
             <img src={product.image} alt={tr ? product.nameTr : product.nameEn} />
             <span>{String(active + 1).padStart(2, "0")}</span>
           </div>

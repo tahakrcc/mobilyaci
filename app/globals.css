@@ -793,8 +793,8 @@ html, body, .public-site { max-width: 100%; overflow-x: clip; }
   .flipbook-layout { gap: 0; }
   .product-book { min-height: 330px; }
   .book-cover, .book-page, .book-turning { height: min(92vw, 350px); min-height: 300px; }
-  .book-left { display: block; padding: 27px 17px 20px; transition: opacity .36s ease, filter .36s ease; }
-  .book-left.is-changing { opacity: .32; filter: blur(4px); }
+  .book-left { display: block; padding: 27px 17px 20px; }
+  .book-left.is-changing { animation: mobileBookCopySwap .92s cubic-bezier(.55,.04,.28,1) both; }
   .book-left::after { inset: 9px; }
   .book-brand { display: none; }
   .book-mobile-details { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; }
@@ -808,8 +808,22 @@ html, body, .public-site { max-width: 100%; overflow-x: clip; }
   .book-mobile-controls { display: flex; gap: 7px; margin-top: auto; padding-top: 10px; }
   .book-mobile-controls button { width: 34px; height: 34px; display: grid; place-items: center; color: var(--wu-gold-light); border: 1px solid rgba(214,166,79,.35); background: rgba(0,0,0,.15); }
   .book-mobile-controls svg { width: 13px; }
+  .book-right.is-changing { animation: mobileBookImageSwap .92s cubic-bezier(.55,.04,.28,1) both; }
+  .book-turning { display: none; }
   .book-hit { display: none; }
   .flipbook-details { display: none; }
+}
+
+@keyframes mobileBookCopySwap {
+  0%, 38% { opacity: 1; filter: blur(0); }
+  47%, 52% { opacity: .05; filter: blur(3px); }
+  72%, 100% { opacity: 1; filter: blur(0); }
+}
+
+@keyframes mobileBookImageSwap {
+  0%, 38% { opacity: 1; transform: scale(1); }
+  47%, 52% { opacity: .08; transform: scale(.985); }
+  72%, 100% { opacity: 1; transform: scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -817,4 +831,5 @@ html, body, .public-site { max-width: 100%; overflow-x: clip; }
   .blur-reveal { opacity: 1; filter: none; transform: none; transition: none; }
   .text-cylinder span { opacity: 1; filter: none; transform: none; }
   .book-turning { animation-duration: .01ms !important; }
+  .book-left.is-changing, .book-right.is-changing { animation-duration: .01ms !important; }
 }
