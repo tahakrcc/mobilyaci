@@ -100,6 +100,37 @@ export function TextReveal3D({ locale }: { locale: Locale }) {
   );
 }
 
+export function RevealHeading3D({ children, className = "" }: { children: string; className?: string }) {
+  const ref = useRef<HTMLHeadingElement>(null);
+  const [visible, setVisible] = useState(false);
+  const words = children.trim().split(/\s+/);
+
+  useEffect(() => {
+    const heading = ref.current;
+    if (!heading) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => entry.isIntersecting && setVisible(true),
+      { threshold: 0.35, rootMargin: "0px 0px -10%" },
+    );
+    observer.observe(heading);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <h2 ref={ref} className={`reveal-heading-3d ${visible ? "is-visible" : ""} ${className}`.trim()} aria-label={children}>
+      {words.map((word, index) => (
+        <span className="reveal-word" style={{ "--word-index": index } as React.CSSProperties} aria-hidden="true" key={`${word}-${index}`}>
+          {word}
+        </span>
+      ))}
+    </h2>
+  );
+}
+
 export function RibbonType({ locale }: { locale: Locale }) {
   const phrase = locale === "tr" ? "TEK PARÇA · DOĞAL DAMAR · EL İŞÇİLİĞİ · " : "ONE OF ONE · NATURAL GRAIN · MADE BY HAND · ";
   return (
