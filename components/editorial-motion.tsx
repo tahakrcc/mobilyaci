@@ -11,8 +11,8 @@ export function ScrollRevealController() {
       return;
     }
     const observer = new IntersectionObserver(
-      (entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add("is-visible")),
-      { threshold: 0.18, rootMargin: "0px 0px -8%" },
+      (entries) => entries.forEach((entry) => entry.target.classList.toggle("is-visible", entry.isIntersecting)),
+      { threshold: 0.18, rootMargin: "-4% 0px -8%" },
     );
     items.forEach((item) => observer.observe(item));
     return () => observer.disconnect();
@@ -113,8 +113,8 @@ export function RevealHeading3D({ children, className = "" }: { children: string
       return;
     }
     const observer = new IntersectionObserver(
-      ([entry]) => entry.isIntersecting && setVisible(true),
-      { threshold: 0.35, rootMargin: "0px 0px -10%" },
+      ([entry]) => setVisible(entry.isIntersecting),
+      { threshold: 0.3, rootMargin: "-4% 0px -10%" },
     );
     observer.observe(heading);
     return () => observer.disconnect();
