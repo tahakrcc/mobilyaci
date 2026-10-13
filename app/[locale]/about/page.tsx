@@ -1,0 +1,12 @@
+import { notFound } from "next/navigation";
+import { InnerHero, InnerShell, InquiryBand } from "@/components/inner-page";
+import { isLocale } from "@/lib/catalog";
+import { resolveContent } from "@/lib/content-store";
+
+export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale: rawLocale } = await params; if (!isLocale(rawLocale)) notFound(); const locale = rawLocale; const tr = locale === "tr";
+  const content = await resolveContent(locale, { "about.title": tr ? "Ağacı malzeme değil, yaşayan bir kayıt olarak görüyoruz." : "We see wood not as material, but as a living record.", "about.body": tr ? "Adana'daki atölyemizde doğal ahşabı, çağdaş formları ve kontrollü epoksi uygulamasını tek parça üretim anlayışıyla buluşturuyoruz." : "In our Adana workshop, natural wood, contemporary form and controlled resin work meet in a one-of-one making practice." });
+  return <InnerShell locale={locale}><InnerHero locale={locale} eyebrow="WOODEN UNIVERSE" title={content["about.title"]} lead={content["about.body"]} image="/images/olive-console.webp" index="STUDIO / 01" />
+    <section className="about-manifesto"><div className="blur-reveal"><span>01</span><h2>{tr ? "Malzemenin kusurunu silmeyiz." : "We do not erase the material's irregularities."}</h2><p>{tr ? "Çatlak, oyuk ve yön değişimleri ağacın geçmişidir. Tasarım, bu izleri gizlemek yerine dengeler." : "Cracks, voids and changes of direction are the wood's past. Design balances these marks rather than hiding them."}</p></div><div className="blur-reveal"><span>02</span><h2>{tr ? "Her parça yalnızca bir kez üretilir." : "Every piece is made only once."}</h2><p>{tr ? "Ölçü tekrarlanabilir; fakat aynı damar, kenar ve doğal boşluk yeniden oluşmaz." : "Dimensions can repeat, but the same grain, edge and natural void never return."}</p></div><div className="blur-reveal"><span>03</span><h2>{tr ? "Süreci görünür tutarız." : "We keep the process visible."}</h2><p>{tr ? "Plaka seçiminden teslimata kadar kararları birlikte verir, üretim aşamalarını kayıt altına alırız." : "From slab selection to delivery, decisions are shared and every stage is documented."}</p></div></section>
+    <section className="studio-quote"><p className="eyebrow">ADANA · TÜRKİYE</p><blockquote>{tr ? "İyi bir parça, mekâna girdiğinde kendini göstermeli; ama ağacın sesini bastırmamalı." : "A good piece should make its presence felt in a room without speaking louder than the wood."}</blockquote></section><InquiryBand locale={locale} /></InnerShell>;
+}

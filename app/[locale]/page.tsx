@@ -6,6 +6,7 @@ import { TreeExperienceLoader } from "@/components/tree-experience-loader";
 import { HeroGallery } from "@/components/hero-gallery";
 import { GhostTypeHeading, RevealHeading3D, RibbonType, ScrollRevealController, TextReveal3D } from "@/components/editorial-motion";
 import { ProductFlipbook } from "@/components/product-flipbook";
+import { SiteFooter } from "@/components/site-footer";
 import { copy, isLocale, trees } from "@/lib/catalog";
 import { resolveContent } from "@/lib/content-store";
 
@@ -49,7 +50,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <ProcessStep no="04" title={tr ? "Teslimat" : "Delivery"} body={tr ? "Son kontrolden sonra teslimat planını birlikte kesinleştiririz." : "After final inspection, we confirm delivery together."} />
     </ol></section>
     <section className="final-cta"><div className="final-cta-visual"><img src="/images/olive-console.webp" alt={tr ? "Masif zeytin ağacı konsol" : "Solid olive wood console"} /><span>06 / 06</span></div><div className="final-cta-copy"><p className="eyebrow">{tr ? "SİZE ÖZEL" : "MADE FOR YOU"}</p><RevealHeading3D>{content["cta.title"]}</RevealHeading3D><p>{tr ? "Ödeme yapmadan talebinizi oluşturun. Atölye, uygun levhaları ve üretim planını sizinle birlikte netleştirsin." : "Create your request without payment. The workshop will confirm available slabs and the production plan with you."}</p><div><Link className="button gold" href={`/${locale}/design`}>{t.nav.design}<ArrowUpRight /></Link><Link className="button ghost-light" href={`/${locale}/track`}>{t.nav.track}</Link></div></div></section>
-    <footer className="site-footer"><div className="brand"><span className="brand-mark">WU</span><span className="brand-word">WOODEN<span>UNIVERSE</span></span></div><p>{content["footer.text"]}</p><div><a href="https://www.instagram.com/woodenuniverse.official/" target="_blank" rel="noreferrer">Instagram</a><Link href={`/${locale}/track`}>{t.nav.track}</Link><Link href="/admin">Admin</Link></div><small>© {new Date().getFullYear()} WoodenUniverse</small></footer>
+    <SiteFooter locale={locale} />
   </main>;
 }
 

@@ -11,11 +11,12 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   const t = copy[locale];
   const other = locale === "tr" ? "en" : "tr";
   const links = [
-    [t.nav.woods, `/${locale}#woods`],
+    [t.nav.woods, `/${locale}/woods`],
     [t.nav.products, `/${locale}/products`],
-    [t.nav.projects, `/${locale}#projects`],
-    [t.nav.process, `/${locale}#process`],
+    [t.nav.projects, `/${locale}/projects`],
+    [t.nav.process, `/${locale}/workshop`],
     [t.nav.track, `/${locale}/track`],
+    [locale === "tr" ? "İletişim" : "Contact", `/${locale}/contact`],
   ];
   return (
     <header className="site-header">
