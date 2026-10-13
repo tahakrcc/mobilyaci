@@ -43,7 +43,25 @@ export function ProductFlipbook({ locale }: { locale: Locale }) {
       <div className="flipbook-layout">
         <div className="product-book" role="group" aria-label={tr ? "Ürün kitabı" : "Product book"}>
           <div className="book-shadow" />
-          <div className="book-cover book-left"><span>WU</span><small>WOODEN UNIVERSE</small></div>
+          <div className={turning ? "book-cover book-left is-changing" : "book-cover book-left"}>
+            <div className="book-brand"><span>WU</span><small>WOODEN UNIVERSE</small></div>
+            <div className="book-mobile-details" aria-live="polite">
+              <div className="book-mobile-kicker">
+                <span>{String(active + 1).padStart(2, "0")} / {String(products.length).padStart(2, "0")}</span>
+                <span>{tr ? product.categoryTr : product.categoryEn}</span>
+              </div>
+              <h3>{tr ? product.nameTr : product.nameEn}</h3>
+              <dl>
+                <div><dt>{tr ? "Ağaç" : "Wood"}</dt><dd>{tr ? tree?.tr : tree?.en}</dd></div>
+                <div><dt>{tr ? "Epoksi" : "Resin"}</dt><dd>{tr ? product.epoxyTr : product.epoxyEn}</dd></div>
+                <div><dt>{tr ? "Ölçü" : "Size"}</dt><dd>{product.dimensions}</dd></div>
+              </dl>
+              <div className="book-mobile-controls">
+                <button onClick={() => turn("prev")} aria-label={tr ? "Önceki ürün" : "Previous product"}><ArrowLeft /></button>
+                <button onClick={() => turn("next")} aria-label={tr ? "Sonraki ürün" : "Next product"}><ArrowRight /></button>
+              </div>
+            </div>
+          </div>
           <div className="book-page book-right">
             <img src={product.image} alt={tr ? product.nameTr : product.nameEn} />
             <span>{String(active + 1).padStart(2, "0")}</span>
