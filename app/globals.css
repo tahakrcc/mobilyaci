@@ -615,3 +615,60 @@ html, body, .public-site { max-width: 100%; overflow-x: clip; }
 @media (prefers-reduced-motion: reduce) {
   .hero-slide, .hero-slide.active { animation: none !important; transition: opacity .01ms linear !important; transform: none !important; }
 }
+
+/* Cinematic mobile hero: copy lives on the photographic slider */
+@media (max-width: 640px) {
+  .hero { position: relative; display: block; min-height: 100svh; padding-top: 72px; isolation: isolate; }
+  .hero-visual { position: absolute; z-index: 1; inset: 72px 0 0; min-height: 0; max-height: none; border: 0; }
+  .hero-content { position: relative; z-index: 2; width: 100%; min-height: calc(100svh - 72px); padding: 46px 20px 132px; justify-content: center; color: var(--wu-ivory); pointer-events: none; background: linear-gradient(180deg, rgba(5,5,3,.36) 0%, rgba(5,5,3,.2) 25%, rgba(5,5,3,.7) 72%, rgba(5,5,3,.92) 100%), linear-gradient(90deg, rgba(4,4,3,.78), rgba(4,4,3,.22) 88%); }
+  .hero-content::before { display: none; }
+  .hero-kicker, .hero h1, .hero-content > p:not(.eyebrow), .hero-actions { position: relative; z-index: 2; }
+  .hero h1 { max-width: 350px; text-shadow: 0 8px 34px rgba(0,0,0,.82); }
+  .hero-content > p:not(.eyebrow) { max-width: 350px; color: rgba(244,236,217,.82); text-shadow: 0 2px 18px rgba(0,0,0,.85); }
+  .hero-actions { pointer-events: auto; }
+  .hero-actions .button { backdrop-filter: blur(10px); }
+  .hero-actions .button.glass { background: rgba(7,7,5,.5); }
+  .hero-signature { display: none; }
+  .hero-gallery::after { background: linear-gradient(180deg, rgba(0,0,0,.28), transparent 34%, rgba(0,0,0,.82) 100%); }
+  .hero-gallery-count { top: 16px; }
+  .hero-gallery .hero-object-label { bottom: 18px; }
+}
+
+/* Premium 3D transition loader */
+.tree-loading { position: relative; height: 100svh; min-height: 620px; overflow: hidden; display: grid; place-items: center; background: radial-gradient(circle at 50% 44%, #211a0d 0, #0b0a06 34%, #030302 72%); }
+.tree-loading::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent 49.9%, rgba(214,166,79,.14) 50%, transparent 50.1%), linear-gradient(0deg, transparent 49.9%, rgba(214,166,79,.1) 50%, transparent 50.1%); opacity: .7; }
+.grain-loader { position: relative; width: min(760px, 88vw); min-height: min(680px, 82svh); display: grid; place-items: center; }
+.grain-loader-brand { position: absolute; top: 0; left: 0; display: flex; align-items: center; gap: 13px; color: var(--wu-gold-light); }
+.grain-loader-brand span { width: 46px; height: 46px; display: grid; place-items: center; border: 1px solid rgba(214,166,79,.6); border-radius: 50%; font: 16px/1 "Iowan Old Style", serif; }
+.grain-loader-brand small { font-size: 8px; letter-spacing: .28em; }
+.grain-loader-rings { position: relative; width: min(430px, 70vw); aspect-ratio: 1; display: grid; place-items: center; filter: drop-shadow(0 20px 60px rgba(214,166,79,.12)); }
+.grain-loader-rings i { position: absolute; border: 1px solid rgba(214,166,79,.28); border-radius: 47% 53% 49% 51% / 52% 46% 54% 48%; animation: grainPulse 2.8s ease-in-out infinite alternate, grainTurn 13s linear infinite; }
+.grain-loader-rings i:nth-child(1) { inset: 3%; animation-delay: -.3s; }
+.grain-loader-rings i:nth-child(2) { inset: 11%; animation-delay: -.65s; animation-direction: alternate-reverse, reverse; }
+.grain-loader-rings i:nth-child(3) { inset: 20%; animation-delay: -1s; }
+.grain-loader-rings i:nth-child(4) { inset: 29%; animation-delay: -1.35s; animation-direction: alternate-reverse, reverse; }
+.grain-loader-rings i:nth-child(5) { inset: 38%; animation-delay: -1.7s; }
+.grain-loader-rings i:nth-child(6) { inset: 46%; animation-delay: -2.05s; animation-direction: alternate-reverse, reverse; }
+.grain-loader-rings b { width: 8px; height: 8px; border-radius: 50%; background: var(--wu-gold-light); box-shadow: 0 0 26px rgba(241,210,122,.72); }
+.grain-loader-copy { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: 1fr auto; gap: 10px 28px; align-items: end; }
+.grain-loader-copy > span { color: var(--wu-gold); font-size: 9px; letter-spacing: .3em; }
+.grain-loader-copy strong { grid-column: 1 / -1; max-width: 620px; color: var(--wu-ivory); font: 400 clamp(30px, 5vw, 58px)/.98 "Iowan Old Style", Baskerville, serif; letter-spacing: -.04em; }
+.grain-loader-progress { grid-column: 1; height: 1px; margin-top: 12px; overflow: hidden; background: rgba(214,166,79,.18); }
+.grain-loader-progress i { display: block; width: 42%; height: 100%; background: linear-gradient(90deg, transparent, var(--wu-gold-light), transparent); animation: grainLoad 1.55s ease-in-out infinite; }
+.grain-loader-copy small { grid-column: 2; grid-row: 3; color: rgba(244,236,217,.42); font-size: 8px; letter-spacing: .2em; }
+@keyframes grainPulse { from { opacity: .28; transform: scale(.97); border-color: rgba(214,166,79,.2); } to { opacity: 1; transform: scale(1.025); border-color: rgba(241,210,122,.56); } }
+@keyframes grainTurn { to { rotate: 360deg; } }
+@keyframes grainLoad { from { transform: translateX(-115%); } to { transform: translateX(340%); } }
+
+@media (max-width: 640px) {
+  .tree-loading { min-height: 100svh; }
+  .grain-loader { width: calc(100vw - 40px); min-height: 78svh; }
+  .grain-loader-rings { width: 78vw; transform: translateY(-5vh); }
+  .grain-loader-copy { gap: 9px 15px; }
+  .grain-loader-copy strong { max-width: 330px; font-size: 34px; }
+  .grain-loader-copy small { font-size: 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain-loader-rings i, .grain-loader-progress i { animation-duration: .01ms !important; }
+}
