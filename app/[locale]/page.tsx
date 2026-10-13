@@ -3,7 +3,7 @@ import { ArrowDown, ArrowRight, ArrowUpRight, Hammer, Layers3, ScanLine, Truck }
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { TreeExperienceLoader } from "@/components/tree-experience-loader";
-import { Hero3DEmblem } from "@/components/hero-3d-emblem";
+import { HeroGallery } from "@/components/hero-gallery";
 import { copy, isLocale, products, trees } from "@/lib/catalog";
 import { resolveContent } from "@/lib/content-store";
 
@@ -31,9 +31,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <div className="hero-signature"><span>WU</span><p>{tr ? "Adana'da tasarlandı. Tek parça üretildi." : "Designed in Adana. Made as one of one."}</p></div>
       </div>
       <div className="hero-visual">
-        <div className="hero-image-frame"><img className="hero-image" src={content["hero.image"]} alt={tr ? "Zeytin ağacı ve siyah epoksi yemek masası" : "Olive wood and black epoxy dining table"} /></div>
-        <div className="hero-object-label"><span>NO. 01</span><strong>{tr ? "Zeytin · Füme epoksi" : "Olive · Smoky resin"}</strong><small>220 × 100 × 76 cm</small></div>
-        <Hero3DEmblem locale={locale} />
+        <HeroGallery locale={locale} initialImage={content["hero.image"]} />
       </div>
       <div className="hero-facts"><span><strong>01</strong>{tr ? "Tek parça" : "One of one"}</span><span><strong>02</strong>{tr ? "Ölçünüze göre" : "Made to measure"}</span><span><strong>03</strong>{tr ? "Şeffaf üretim" : "Visible making"}</span></div>
     </section>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, Float, Sparkles, useGLTF } from "@react-three/drei";
+import { ContactShadows, Environment, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import type { Locale } from "@/lib/catalog";
@@ -35,8 +35,20 @@ function TreeModel({ progress, color }: { progress: number; color: string }) {
       if (!(child instanceof THREE.Mesh)) return;
       const materials = Array.isArray(child.material) ? child.material : [child.material];
       materials.forEach((material) => {
+        if ("envMapIntensity" in material) material.envMapIntensity = 0.42;
+        if ("metalness" in material && material.name !== "Blackened_Steel") material.metalness = 0;
+        if (material.name === "Bark_Rough") {
+          material.color.set("#2b160c");
+          material.roughness = 0.96;
+        }
+        if (material.name === "Bark_Ridge") {
+          material.color.set("#412010");
+          material.roughness = 0.9;
+        }
+        if (material.name === "Growth_Rings") material.roughness = 0.86;
         if (material.name === "Olive_Heartwood" || material.name === "Sapwood_Gold") {
-          material.color.copy(selected).lerp(new THREE.Color("#c88b4c"), 0.28);
+          material.color.copy(selected).lerp(new THREE.Color("#8f5d2f"), 0.22);
+          material.roughness = 0.68;
           material.needsUpdate = true;
         }
       });
@@ -72,12 +84,15 @@ function TreeModel({ progress, color }: { progress: number; color: string }) {
     slab.position.set(THREE.MathUtils.lerp(2.4, -0.12, productReveal), -0.1, 0.15);
     slab.rotation.set(0.78 - productReveal * 0.12, 0.05, -0.08);
 
-    stageRoot.current.position.y = Math.sin(state.clock.elapsedTime * 0.42) * 0.035;
-    state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, 7.6 - progress * 0.55, 0.04);
+    const mobile = state.size.width < 640;
+    const tablet = state.size.width < 980;
+    stageRoot.current.scale.setScalar(mobile ? 0.72 : tablet ? 0.88 : 1.08);
+    stageRoot.current.position.y = (mobile ? 1.02 : tablet ? 0.45 : 0) + Math.sin(state.clock.elapsedTime * 0.42) * 0.02;
+    state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, (mobile ? 8.6 : 7.6) - progress * 0.45, 0.04);
   });
 
   return (
-    <group ref={stageRoot} scale={1.08}>
+    <group ref={stageRoot}>
       <primitive object={model} />
     </group>
   );
@@ -110,16 +125,14 @@ export function TreeExperience({ locale }: { locale: Locale }) {
         <div className="tree-canvas" aria-label={locale === "tr" ? "Etkileşimli ağaç kesiti" : "Interactive tree cross-section"}>
           <Canvas camera={{ position: [0, 0, 7.2], fov: 42 }} dpr={[1, 1.65]} shadows>
             <color attach="background" args={["#0b0b09"]} />
-            <ambientLight intensity={0.8} />
-            <directionalLight position={[5, 6, 4]} intensity={4.5} color="#ffd69c" castShadow />
-            <pointLight position={[-4, -2, 3]} intensity={4} color="#487b67" />
-            <Float speed={0.7} rotationIntensity={0.08} floatIntensity={0.18}>
-              <Suspense fallback={null}>
-                <TreeModel progress={progress} color={tree.tone} />
-              </Suspense>
-            </Float>
-            <Sparkles count={45} scale={8} size={1.2} speed={0.18} opacity={0.35} color="#d4b276" />
-            <Environment preset="warehouse" />
+            <ambientLight intensity={0.34} />
+            <directionalLight position={[5, 7, 5]} intensity={2.65} color="#ffd7a0" castShadow />
+            <pointLight position={[-4, 1, 3]} intensity={1.4} color="#7f5227" />
+            <Suspense fallback={null}>
+              <TreeModel progress={progress} color={tree.tone} />
+            </Suspense>
+            <ContactShadows position={[0, -1.72, 0]} opacity={0.34} scale={8} blur={2.8} far={4} color="#000000" />
+            <Environment preset="warehouse" environmentIntensity={0.38} />
           </Canvas>
         </div>
         <div className="tree-copy">
