@@ -501,6 +501,16 @@ html, body { background: var(--wu-black); color: var(--wu-ivory); }
 .catalog-page .site-header, .builder-page .site-header, .tracking-page .site-header, .page-hero { background: #070705; }
 .page-hero { border-bottom: 1px solid var(--wu-line); }.page-hero > p:last-child { color: var(--wu-smoke); border-color: var(--wu-line); }
 .catalog-grid { background: rgba(214,166,79,.28); }.catalog-grid article { color: var(--wu-ivory); background: var(--wu-black-soft); }.catalog-grid img { filter: saturate(.65) brightness(.76) contrast(1.08); }.catalog-grid article:hover img { filter: saturate(.82) brightness(.9); }.catalog-grid small { color: var(--wu-gold-light); }.catalog-grid p { color: var(--wu-smoke); }
+.collection-hero .reveal-heading-3d { font-size: clamp(68px, 8vw, 132px); line-height: .84; letter-spacing: -.06em; margin: 0 0 28px; max-width: 950px; }
+.collection-hero-note { transition-delay: .28s; }
+.catalog-card { overflow: hidden; transition-delay: var(--card-delay); }
+.catalog-image-link { position: relative; display: block; overflow: hidden; clip-path: inset(0 0 100% 0); transform: translateY(30px) scale(.985); transition: clip-path 1.15s cubic-bezier(.2,.76,.18,1), transform 1.15s cubic-bezier(.2,.76,.18,1); }
+.catalog-card.is-visible .catalog-image-link { clip-path: inset(0); transform: translateY(0) scale(1); }
+.catalog-image-link > span { position: absolute; right: 20px; bottom: 18px; z-index: 2; display: grid; place-items: center; width: 42px; height: 42px; color: var(--wu-gold-light); border: 1px solid rgba(241,210,122,.5); background: rgba(5,5,4,.7); backdrop-filter: blur(9px); font-size: 9px; letter-spacing: .12em; }
+.catalog-card-copy > small, .catalog-card-copy > h2, .catalog-card-copy > p, .catalog-card-copy > .catalog-actions { opacity: 0; filter: blur(7px); transform: translateY(18px); transition: opacity .75s ease, filter .8s ease, transform .85s cubic-bezier(.2,.76,.18,1); }
+.catalog-card.is-visible .catalog-card-copy > small, .catalog-card.is-visible .catalog-card-copy > h2, .catalog-card.is-visible .catalog-card-copy > p, .catalog-card.is-visible .catalog-card-copy > .catalog-actions { opacity: 1; filter: blur(0); transform: translateY(0); }
+.catalog-card-copy > h2 { transition-delay: .08s; }.catalog-card-copy > p { transition-delay: .16s; }.catalog-card-copy > .catalog-actions { transition-delay: .24s; }
+.catalog-card h2 a { display: inline-block; transition: color .25s ease, transform .4s cubic-bezier(.2,.76,.18,1); }.catalog-card:hover h2 a { color: var(--wu-gold-light); transform: translateX(6px); }
 .button.dark, .button.light { color: #080806; background: linear-gradient(115deg, #9b6c28, #e7c369); }
 
 .builder-aside { color: var(--wu-ivory); background: radial-gradient(circle at 18% 0%, #292215, #0b0b08 52%, #050504); border-right: 1px solid var(--wu-line); }
@@ -634,6 +644,8 @@ html, body, .public-site { max-width: 100%; overflow-x: clip; }
 
 @media (prefers-reduced-motion: reduce) {
   .hero-slide, .hero-slide.active { animation: none !important; transition: opacity .01ms linear !important; transform: none !important; }
+  .catalog-image-link { clip-path: inset(0); transform: none; transition: none; }
+  .catalog-card-copy > small, .catalog-card-copy > h2, .catalog-card-copy > p, .catalog-card-copy > .catalog-actions { opacity: 1; filter: none; transform: none; transition: none; }
 }
 
 /* Cinematic mobile hero: copy lives on the photographic slider */

@@ -100,10 +100,11 @@ export function TextReveal3D({ locale }: { locale: Locale }) {
   );
 }
 
-export function RevealHeading3D({ children, className = "" }: { children: string; className?: string }) {
+export function RevealHeading3D({ children, className = "", as = "h2" }: { children: string; className?: string; as?: "h1" | "h2" }) {
   const ref = useRef<HTMLHeadingElement>(null);
   const [visible, setVisible] = useState(false);
   const words = children.trim().split(/\s+/);
+  const Heading = as;
 
   useEffect(() => {
     const heading = ref.current;
@@ -121,13 +122,13 @@ export function RevealHeading3D({ children, className = "" }: { children: string
   }, []);
 
   return (
-    <h2 ref={ref} className={`reveal-heading-3d ${visible ? "is-visible" : ""} ${className}`.trim()} aria-label={children}>
+    <Heading ref={ref} className={`reveal-heading-3d ${visible ? "is-visible" : ""} ${className}`.trim()} aria-label={children}>
       {words.map((word, index) => (
         <span className="reveal-word" style={{ "--word-index": index } as React.CSSProperties} aria-hidden="true" key={`${word}-${index}`}>
           {word}
         </span>
       ))}
-    </h2>
+    </Heading>
   );
 }
 
