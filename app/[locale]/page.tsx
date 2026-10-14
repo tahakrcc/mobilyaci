@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ArrowDown, ArrowRight, ArrowUpRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
@@ -31,7 +30,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <div className="hero-kicker"><span>01</span><p className="eyebrow">{t.heroEyebrow}</p></div>
         <GhostTypeHeading title={content["hero.title"]} locale={locale} />
         <p>{content["hero.subtitle"]}</p>
-        <div className="hero-actions"><Link className="button gold" href={`/${locale}/design`}>{t.nav.design}<ArrowUpRight /></Link><a className="hero-scroll-cue" href="#manifesto">{tr ? "Keşfet" : "Explore"}<ArrowDown /></a></div>
+        <div className="hero-actions"><a className="button gold" href={`/${locale}/design`}>{t.nav.design}<ArrowUpRight /></a><a className="hero-scroll-cue" href="#manifesto">{tr ? "Keşfet" : "Explore"}<ArrowDown /></a></div>
       </div>
       <div className="hero-visual">
         <HeroGallery locale={locale} initialImage={content["hero.image"]} />
@@ -49,7 +48,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <ProcessStep no="03" title={tr ? "Atölye" : "Workshop"} body={tr ? "Üretimin her aşamasını sipariş takibinize fotoğraflarla işleriz." : "We document every making stage in your order tracking."} />
       <ProcessStep no="04" title={tr ? "Teslimat" : "Delivery"} body={tr ? "Son kontrolden sonra teslimat planını birlikte kesinleştiririz." : "After final inspection, we confirm delivery together."} />
     </ol></section>
-    <section className="final-cta"><div className="final-cta-visual"><img src="/images/olive-console.webp" alt={tr ? "Masif zeytin ağacı konsol" : "Solid olive wood console"} /><span>06 / 06</span></div><div className="final-cta-copy"><p className="eyebrow">{tr ? "SİZE ÖZEL" : "MADE FOR YOU"}</p><RevealHeading3D>{content["cta.title"]}</RevealHeading3D><p>{tr ? "Ödeme yapmadan talebinizi oluşturun. Atölye, uygun levhaları ve üretim planını sizinle birlikte netleştirsin." : "Create your request without payment. The workshop will confirm available slabs and the production plan with you."}</p><div><Link className="button gold" href={`/${locale}/design`}>{t.nav.design}<ArrowUpRight /></Link><Link className="button ghost-light" href={`/${locale}/track`}>{t.nav.track}</Link></div></div></section>
+    <section className="final-cta"><div className="final-cta-visual"><img src="/images/olive-console.webp" alt={tr ? "Masif zeytin ağacı konsol" : "Solid olive wood console"} /><span>06 / 06</span></div><div className="final-cta-copy"><p className="eyebrow">{tr ? "SİZE ÖZEL" : "MADE FOR YOU"}</p><RevealHeading3D>{content["cta.title"]}</RevealHeading3D><p>{tr ? "Ödeme yapmadan talebinizi oluşturun. Atölye, uygun levhaları ve üretim planını sizinle birlikte netleştirsin." : "Create your request without payment. The workshop will confirm available slabs and the production plan with you."}</p><div><a className="button gold" href={`/${locale}/design`}>{t.nav.design}<ArrowUpRight /></a><a className="button ghost-light" href={`/${locale}/track`}>{t.nav.track}</a></div></div></section>
     <SiteFooter locale={locale} />
   </main>;
 }

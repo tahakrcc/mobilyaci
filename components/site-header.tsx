@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import type { Locale } from "@/lib/catalog";
@@ -20,14 +19,14 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   ];
   return (
     <header className="site-header">
-      <Link className="brand" href={`/${locale}`} aria-label="WoodenUniverse">
+      <a className="brand" href={`/${locale}`} aria-label="WoodenUniverse">
         <span className="brand-mark">WU</span>
         <span className="brand-word">WOODEN<span>UNIVERSE</span></span>
-      </Link>
+      </a>
       <nav className={open ? "nav-links open" : "nav-links"} aria-label="Ana navigasyon">
-        {links.map(([label, href]) => <Link key={href} href={href} onClick={() => setOpen(false)}>{label}</Link>)}
-        <Link className="lang-link" href={`/${other}`}>{other.toUpperCase()}</Link>
-        <Link className="nav-cta" href={`/${locale}/design`}>{t.nav.design}</Link>
+        {links.map(([label, href]) => <a key={href} href={href} onClick={() => setOpen(false)}>{label}</a>)}
+        <a className="lang-link" href={`/${other}`}>{other.toUpperCase()}</a>
+        <a className="nav-cta" href={`/${locale}/design`}>{t.nav.design}</a>
       </nav>
       <button className="menu-button" onClick={() => setOpen((value) => !value)} aria-label="Menüyü aç" aria-expanded={open}>
         {open ? <X /> : <Menu />}

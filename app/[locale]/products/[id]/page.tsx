@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import { InnerHero, InnerShell, InquiryBand } from "@/components/inner-page";
@@ -21,7 +20,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     </section>
     <section className="detail-gallery"><img src={product.image} alt={tr ? product.nameTr : product.nameEn} /><div className="detail-gallery-note"><span>01 / 02</span><p>{tr ? "Gerçek plakanın damar sınırları tasarımın nihai çizgisini belirler." : "The grain boundaries of the actual slab determine the final line of the design."}</p></div></section>
     <section className="detail-copy-grid"><article className="blur-reveal"><p className="eyebrow">{tr ? "YAKLAŞIM" : "APPROACH"}</p><h2>{tr ? "Form, ağacı düzeltmek için değil; onu görünür kılmak için kurulur." : "The form is built not to correct the wood, but to make it visible."}</h2></article><article className="blur-reveal"><h3>{tr ? "Size göre yeniden çizilir" : "Redrawn for you"}</h3><p>{tr ? "Masa yüksekliği, kullanım alanı, kenar karakteri, ayak sistemi ve epoksi tonu birlikte belirlenir. Fotoğraftaki çalışma birebir çoğaltılmaz." : "Height, use, edge character, base and resin tone are decided together. The photographed work is never copied exactly."}</p><h3>{tr ? "Bakım" : "Care"}</h3><p>{tr ? "Yumuşak ve hafif nemli bez kullanın. Doğrudan ısıdan, keskin darbelerden ve uzun süreli sudan koruyun." : "Use a soft, lightly damp cloth. Protect from direct heat, sharp impact and standing water."}</p></article></section>
-    <div className="detail-back"><Link href={`/${locale}/products`}><ArrowLeft />{tr ? "Koleksiyona dön" : "Back to collection"}</Link><Link href={`/${locale}/design?product=${product.id}`}>{tr ? "Bu parçadan yola çık" : "Begin with this piece"}<ArrowUpRight /></Link></div>
+    <div className="detail-back"><a href={`/${locale}/products`}><ArrowLeft />{tr ? "Koleksiyona dön" : "Back to collection"}</a><a href={`/${locale}/design?product=${product.id}`}>{tr ? "Bu parçadan yola çık" : "Begin with this piece"}<ArrowUpRight /></a></div>
     <InquiryBand locale={locale} />
   </InnerShell>;
 }

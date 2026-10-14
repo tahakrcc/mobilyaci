@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { products, trees, type Locale } from "@/lib/catalog";
@@ -113,7 +112,7 @@ export function ProductFlipbook({ locale }: { locale: Locale }) {
           </dl>
           <div className="flipbook-actions">
             <div><button onClick={() => turn("prev")} aria-label={tr ? "Önceki ürün" : "Previous product"}><ArrowLeft /></button><button onClick={() => turn("next")} aria-label={tr ? "Sonraki ürün" : "Next product"}><ArrowRight /></button></div>
-            <Link href={`/${locale}/design?product=${product.id}`}>{tr ? "Bu parçadan yola çık" : "Begin with this piece"}<ArrowUpRight /></Link>
+            <a href={`/${locale}/design?product=${product.id}`}>{tr ? "Bu parçadan yola çık" : "Begin with this piece"}<ArrowUpRight /></a>
           </div>
         </div>
       </div>
