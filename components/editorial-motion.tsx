@@ -110,8 +110,8 @@ export function RevealHeading3D({ children, className = "", as = "h2" }: { child
     const heading = ref.current;
     if (!heading) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setVisible(true);
-      return;
+      const frame = window.requestAnimationFrame(() => setVisible(true));
+      return () => window.cancelAnimationFrame(frame);
     }
     const observer = new IntersectionObserver(
       ([entry]) => setVisible(entry.isIntersecting),

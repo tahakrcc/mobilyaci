@@ -1,14 +1,11 @@
-import { env } from "cloudflare:workers";
 import { NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
+import { getDb } from "@/db";
+import { media } from "@/db/schema";
 
 export async function GET(_request: Request, context: { params: Promise<{ key: string[] }> }) {
-  if (!env.BUCKET) return NextResponse.json({ error: "storage-unavailable" }, { status: 503 });
   const { key } = await context.params;
-  const object = await env.BUCKET.get(key.join("/"));
+  const [object] = await getDb().select({ url: media.url }).from(media).where(eq(media.key, key.join("/"))).limit(1);
   if (!object) return NextResponse.json({ error: "not-found" }, { status: 404 });
-  const headers = new Headers();
-  object.writeHttpMetadata(headers);
-  headers.set("etag", object.httpEtag);
-  headers.set("cache-control", "public, max-age=31536000, immutable");
-  return new Response(object.body, { headers });
+  return NextResponse.redirect(object.url, 307);
 }

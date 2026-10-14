@@ -20,7 +20,7 @@ export function OrderTracker({ locale }: { locale: Locale }) {
     setLoading(true); setError("");
     try {
       const response = await fetch("/api/track", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderNumber, email, trackingToken: params.get("token") || undefined }) });
-      const body = await response.json();
+      const body = (await response.json()) as Result;
       if (!response.ok) throw new Error();
       setResult(body);
     } catch { setError(tr ? "Sipariş bulunamadı. Kod ve e-posta adresini kontrol edin." : "Request not found. Check the code and email address."); }

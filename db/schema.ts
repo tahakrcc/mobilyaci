@@ -1,6 +1,6 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, pgTable, text, uniqueIndex } from "drizzle-orm/pg-core";
 
-export const orders = sqliteTable("orders", {
+export const orders = pgTable("orders", {
   id: text("id").primaryKey(),
   orderNumber: text("order_number").notNull().unique(),
   trackingToken: text("tracking_token").notNull().unique(),
@@ -25,9 +25,9 @@ export const orders = sqliteTable("orders", {
   notificationStatus: text("notification_status").notNull().default("pending"),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
-});
+}, (table) => [index("orders_email_idx").on(table.email), index("orders_status_idx").on(table.status)]);
 
-export const orderEvents = sqliteTable("order_events", {
+export const orderEvents = pgTable("order_events", {
   id: text("id").primaryKey(),
   orderId: text("order_id").notNull().references(() => orders.id),
   status: text("status").notNull(),
@@ -35,22 +35,23 @@ export const orderEvents = sqliteTable("order_events", {
   internalNote: text("internal_note").notNull().default(""),
   mediaUrl: text("media_url"),
   createdAt: text("created_at").notNull(),
-});
+}, (table) => [index("order_events_order_id_idx").on(table.orderId)]);
 
-export const siteContent = sqliteTable("site_content", {
+export const siteContent = pgTable("site_content", {
   id: text("id").primaryKey(),
   key: text("key").notNull(),
   locale: text("locale").notNull(),
   type: text("type").notNull().default("text"),
   value: text("value").notNull(),
   updatedAt: text("updated_at").notNull(),
-});
+}, (table) => [uniqueIndex("site_content_key_locale_unique").on(table.key, table.locale)]);
 
-export const media = sqliteTable("media", {
+export const media = pgTable("media", {
   id: text("id").primaryKey(),
   key: text("key").notNull().unique(),
   filename: text("filename").notNull(),
   mimeType: text("mime_type").notNull(),
+  url: text("url").notNull(),
   altTr: text("alt_tr").notNull().default(""),
   altEn: text("alt_en").notNull().default(""),
   createdAt: text("created_at").notNull(),

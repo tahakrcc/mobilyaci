@@ -541,6 +541,18 @@ html, body { background: var(--wu-black); color: var(--wu-ivory); }
 
 /* Admin */
 .admin-shell { color: var(--wu-ivory); background: #090907; }
+.admin-login-page { min-height: 100svh; display: grid; place-items: center; padding: 28px; color: var(--wu-ivory); background: radial-gradient(circle at 75% 10%, #231c0f 0, #090907 42%, #030302 100%); }
+.admin-login-card { width: min(480px, 100%); padding: clamp(30px, 6vw, 56px); border: 1px solid var(--wu-line); background: rgba(14, 14, 11, .92); box-shadow: 0 32px 100px rgba(0, 0, 0, .55); }
+.admin-login-brand { margin-bottom: 54px; }
+.admin-login-card h1 { margin: 0 0 18px; font: 400 clamp(38px, 7vw, 58px)/.98 "Iowan Old Style", Baskerville, "Times New Roman", serif; letter-spacing: -.045em; }
+.admin-login-card > p:not(.eyebrow) { color: var(--wu-smoke); line-height: 1.65; }
+.admin-login-card form { display: grid; gap: 18px; margin: 34px 0 24px; }
+.admin-login-card label { display: grid; gap: 8px; color: var(--wu-gold-light); font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.admin-login-card input { width: 100%; min-height: 52px; padding: 0 15px; color: var(--wu-ivory); border: 1px solid var(--wu-line); background: #080806; outline: none; }
+.admin-login-card input:focus { border-color: var(--wu-gold); box-shadow: 0 0 0 3px rgba(214, 166, 79, .1); }
+.admin-login-card .button { width: 100%; justify-content: center; margin-top: 8px; }
+.admin-login-card > a { color: var(--wu-smoke); font-size: 12px; }
+.admin-login-error { padding: 12px 14px; margin-top: 22px; color: #ffd5c9; border: 1px solid rgba(214, 92, 64, .35); background: rgba(122, 32, 17, .2); font-size: 13px; }
 .admin-sidebar { background: #030302; border-right: 1px solid var(--wu-line); }
 .admin-sidebar nav button, .admin-sidebar nav a { color: var(--wu-smoke); }.admin-sidebar nav button:hover, .admin-sidebar nav a:hover { color: var(--wu-gold-light); background: rgba(214,166,79,.07); }.admin-sidebar nav button.active { color: #080806; background: linear-gradient(115deg, #9b6c28, #e7c369); }
 .admin-main { background: radial-gradient(circle at 85% 0%, #1a170f, #090907 38%); }

@@ -27,9 +27,10 @@ export function OrderBuilder({ locale }: { locale: Locale }) {
     setSending(true); setError("");
     try {
       const response = await fetch("/api/orders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, locale }) });
-      const body = await response.json();
+      const body = (await response.json()) as { orderNumber?: string; trackingToken?: string; error?: string };
       if (!response.ok) throw new Error(body.error || "failed");
-      setResult(body);
+      if (!body.orderNumber || !body.trackingToken) throw new Error("invalid-response");
+      setResult({ orderNumber: body.orderNumber, trackingToken: body.trackingToken });
     } catch {
       setError(tr ? "Talep gönderilemedi. Bilgileri kontrol edip tekrar deneyin." : "We could not submit your request. Please check the details and try again.");
     } finally { setSending(false); }

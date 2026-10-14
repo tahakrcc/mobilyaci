@@ -31,13 +31,14 @@ export async function POST(request: Request) {
     const parsed = orderSchema.safeParse(await request.json());
     if (!parsed.success) return NextResponse.json({ error: "invalid-order", fields: parsed.error.flatten().fieldErrors }, { status: 400 });
     const data = parsed.data;
+    const normalizedData = { ...data, email: data.email.toLowerCase() };
     const now = new Date().toISOString();
     const id = crypto.randomUUID();
     const orderNumber = `WU-${new Date().getUTCFullYear()}-${randomToken().slice(0, 8).toUpperCase()}`;
     const trackingToken = randomToken();
     const db = getDb();
     await db.batch([
-      db.insert(orders).values({ ...data, referenceUrl: data.referenceUrl || null, id, orderNumber, trackingToken, status: "received", createdAt: now, updatedAt: now }),
+      db.insert(orders).values({ ...normalizedData, referenceUrl: data.referenceUrl || null, id, orderNumber, trackingToken, status: "received", createdAt: now, updatedAt: now }),
       db.insert(orderEvents).values({ id: crypto.randomUUID(), orderId: id, status: "received", publicNote: data.locale === "tr" ? "Sipariş talebiniz ekibimize ulaştı." : "Your request has reached our team.", createdAt: now }),
     ]);
     const notification = await notifyNewOrder({

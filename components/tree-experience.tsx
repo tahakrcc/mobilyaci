@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable react-hooks/immutability -- Three.js scene objects are intentionally animated inside useFrame. */
+
 import { Canvas, useFrame } from "@react-three/fiber";
 import { ContactShadows, Environment, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
