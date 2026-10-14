@@ -513,6 +513,14 @@ html, body { background: var(--wu-black); color: var(--wu-ivory); }
 .choice-grid small, .wood-options span { color: var(--wu-smoke); }
 .field > span { color: var(--wu-gold-light); }.field input, .field textarea, .field select { color: var(--wu-ivory); border-color: rgba(214,166,79,.38); background: transparent; color-scheme: dark; }.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--wu-gold); box-shadow: 0 1px 0 var(--wu-gold); }
 .field input::placeholder, .field textarea::placeholder { color: #6f695b; }
+.detail-choice-stack { display: grid; gap: 30px; }
+.detail-choice-group { min-width: 0; margin: 0; padding: 0; border: 0; }
+.detail-choice-group legend { margin-bottom: 12px; color: var(--wu-gold-light); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.detail-choice-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.detail-choice-list button { min-height: 46px; display: inline-flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 16px; color: var(--wu-smoke); border: 1px solid rgba(214,166,79,.26); background: #11110d; cursor: pointer; transition: color .2s ease, border-color .2s ease, background .2s ease, transform .2s ease; }
+.detail-choice-list button:hover { color: var(--wu-ivory); border-color: rgba(241,210,122,.62); transform: translateY(-1px); }
+.detail-choice-list button.selected { color: #0a0906; border-color: var(--wu-gold-light); background: linear-gradient(110deg, #b77d25, #f1d27a); }
+.detail-choice-list button:focus-visible { outline: 2px solid var(--wu-gold-light); outline-offset: 3px; }
 .summary-grid, .summary-grid > div { border-color: var(--wu-line); }.summary-grid small { color: var(--wu-smoke); }.summary-grid strong { color: var(--wu-gold-light); }
 .quote-note { color: var(--wu-ivory); background: #1d1a12; border-color: var(--wu-gold); }.builder-actions { border-color: var(--wu-line); }.button.ghost { color: var(--wu-gold-light); border-color: rgba(214,166,79,.36); }
 .success-card { color: var(--wu-ivory); }.success-icon { color: #080806; background: var(--wu-gold); }.success-card p { color: var(--wu-smoke); }
@@ -620,6 +628,8 @@ html, body, .public-site { max-width: 100%; overflow-x: clip; }
   .site-footer { padding: 48px 20px; gap: 28px; }
   .page-hero { padding: 125px 20px 64px; }.page-hero h1 { font-size: clamp(48px, 15vw, 64px); }
   .builder-aside, .builder-panel, .tracker-shell { padding-left: 20px; padding-right: 20px; }
+  .detail-choice-list { display: grid; grid-template-columns: 1fr 1fr; }
+  .detail-choice-list button { width: 100%; padding: 0 13px; gap: 8px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
