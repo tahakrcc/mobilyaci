@@ -36,6 +36,8 @@ Wooden Universe sitesini özel üretim ahşap/epoksi mobilya, sandalye ve masa-s
 - Mobilya, sandalye ve set ekleme, düzenleme, silme, pasife alma ve sıralama ekranı tamamlandı.
 - Kapak görseli ve çoklu galeri görselleri katalog kayıtlarına bağlandı.
 - Paneldeki değişiklikler veritabanında saklanıyor ve ana sayfa, koleksiyon ve detay sayfalarına yansıyor.
+- Siparişlerde durum, müşteriye görünen açıklama, dahili not, tahmini teslim, teklif tutarı ve üretim fotoğrafı yönetimi eklendi.
+- Medya kütüphanesi yüklenen görselleri listeliyor ve katalogda kullanılmak üzere adreslerini kopyalıyor.
 - Sonraki adım: görsel odak noktası, alternatif metin ve mobil kırpma ayarları.
 
 ## 5. Veri tabanı ve dosya depolama — doğrulama bekliyor

@@ -1,11 +1,12 @@
 "use client";
 
-import { ImagePlus, LayoutDashboard, LoaderCircle, Package, PackageOpen, Save, Settings2, Upload, Languages } from "lucide-react";
+import { ChevronDown, ImagePlus, LayoutDashboard, LoaderCircle, Package, PackageOpen, Save, Settings2, Upload, Languages } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { orderStatuses } from "@/lib/catalog";
 import { CatalogManager } from "@/components/catalog-manager";
 
-type Order = { id: string; orderNumber: string; customerName: string; email: string; phone: string; city: string; productType: string; woodType: string; epoxy: string; dimensions: string; status: string; createdAt: string; notificationStatus: string };
+type Order = { id: string; orderNumber: string; customerName: string; email: string; phone: string; city: string; productType: string; woodType: string; epoxy: string; dimensions: string; status: string; createdAt: string; notificationStatus: string; estimatedDelivery: string | null; quotedAmount: number | null; notes: string; adminNotes: string };
+type OrderUpdate = { status: string; publicNote?: string; internalNote?: string; estimatedDelivery?: string | null; quotedAmount?: number | null; mediaUrl?: string | null };
 type ContentRow = { id: string; key: string; locale: "tr" | "en"; type: string; value: string };
 type MediaRow = { id: string; filename: string; url: string; altTr: string; altEn: string; createdAt: string };
 const fields = [
@@ -56,9 +57,9 @@ export function AdminConsole({ userName }: { userName: string }) {
     setSaving("");
     if (response.ok) { setNotice("İçerik kaydedildi."); await load(); } else setNotice("Kaydetme başarısız.");
   }
-  async function updateOrder(order: Order, status: string) {
+  async function updateOrder(order: Order, update: OrderUpdate) {
     setSaving(order.id);
-    const response = await fetch(`/api/admin/orders/${order.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status, publicNote: `Sipariş durumu güncellendi: ${orderStatuses.find((item) => item.id === status)?.tr ?? status}`, internalNote: "" }) });
+    const response = await fetch(`/api/admin/orders/${order.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(update) });
     if (response.ok) await load();
     setSaving("");
   }
@@ -85,5 +86,18 @@ export function AdminConsole({ userName }: { userName: string }) {
 }
 
 function Stat({ label, value }: { label: string; value: number }) { return <div className="stat-card"><small>{label}</small><strong>{String(value).padStart(2, "0")}</strong></div>; }
-function OrderTable({ orders, saving, updateOrder }: { orders: Order[]; saving: string; updateOrder: (order: Order, status: string) => void }) { if (!orders.length) return <div className="empty-state">Henüz sipariş talebi bulunmuyor.</div>; return <div className="table-wrap"><table><thead><tr><th>Sipariş</th><th>Müşteri</th><th>Tasarım</th><th>Tarih</th><th>Durum</th></tr></thead><tbody>{orders.map((order) => <tr key={order.id}><td><strong>{order.orderNumber}</strong><small>{order.city}</small></td><td>{order.customerName}<small>{order.email}<br />{order.phone}</small></td><td>{order.productType}<small>{order.woodType} · {order.dimensions}</small></td><td>{new Date(order.createdAt).toLocaleDateString("tr-TR")}</td><td><select value={order.status} disabled={saving === order.id} onChange={(e) => updateOrder(order, e.target.value)}>{orderStatuses.map((status) => <option key={status.id} value={status.id}>{status.tr}</option>)}</select></td></tr>)}</tbody></table></div>; }
+function OrderTable({ orders, saving, updateOrder }: { orders: Order[]; saving: string; updateOrder: (order: Order, update: OrderUpdate) => void }) {
+  const [expanded, setExpanded] = useState("");
+  if (!orders.length) return <div className="empty-state">Henüz sipariş talebi bulunmuyor.</div>;
+  return <div className="table-wrap"><table><thead><tr><th>Sipariş</th><th>Müşteri</th><th>Tasarım</th><th>Tarih</th><th>Durum</th><th /></tr></thead><tbody>{orders.map((order) => <OrderRows key={order.id} order={order} expanded={expanded === order.id} saving={saving === order.id} onToggle={() => setExpanded(expanded === order.id ? "" : order.id)} updateOrder={updateOrder} />)}</tbody></table></div>;
+}
+function OrderRows({ order, expanded, saving, onToggle, updateOrder }: { order: Order; expanded: boolean; saving: boolean; onToggle: () => void; updateOrder: (order: Order, update: OrderUpdate) => void }) {
+  const [publicNote, setPublicNote] = useState("");
+  const [internalNote, setInternalNote] = useState(order.adminNotes ?? "");
+  const [estimatedDelivery, setEstimatedDelivery] = useState(order.estimatedDelivery ?? "");
+  const [quotedAmount, setQuotedAmount] = useState(order.quotedAmount?.toString() ?? "");
+  const [mediaUrl, setMediaUrl] = useState("");
+  const changeStatus = (status: string) => updateOrder(order, { status, publicNote: `Sipariş durumu güncellendi: ${orderStatuses.find((item) => item.id === status)?.tr ?? status}` });
+  return <><tr><td><strong>{order.orderNumber}</strong><small>{order.city}</small></td><td>{order.customerName}<small>{order.email}<br />{order.phone}</small></td><td>{order.productType}<small>{order.woodType} · {order.dimensions}</small></td><td>{new Date(order.createdAt).toLocaleDateString("tr-TR")}</td><td><select value={order.status} disabled={saving} onChange={(e) => changeStatus(e.target.value)}>{orderStatuses.map((status) => <option key={status.id} value={status.id}>{status.tr}</option>)}</select></td><td><button className={expanded ? "order-expand active" : "order-expand"} onClick={onToggle} aria-label="Sipariş ayrıntıları"><ChevronDown /></button></td></tr>{expanded && <tr className="order-editor-row"><td colSpan={6}><div className="order-editor"><div className="order-brief"><small>MÜŞTERİ NOTU</small><p>{order.notes || "Not bırakılmamış."}</p><small>BİLDİRİM</small><p>{order.notificationStatus}</p></div><div className="order-editor-fields"><label><span>Müşteriye görünen açıklama</span><textarea rows={3} value={publicNote} onChange={(e) => setPublicNote(e.target.value)} placeholder="Örn. Tabla zımpara aşamasına geçti." /></label><label><span>Dahili atölye notu</span><textarea rows={3} value={internalNote} onChange={(e) => setInternalNote(e.target.value)} /></label><label><span>Tahmini teslim</span><input value={estimatedDelivery} onChange={(e) => setEstimatedDelivery(e.target.value)} placeholder="Örn. 15–20 Kasım" /></label><label><span>Teklif tutarı (₺)</span><input type="number" min="0" value={quotedAmount} onChange={(e) => setQuotedAmount(e.target.value)} /></label><label className="wide"><span>Üretim fotoğrafı adresi</span><input type="url" value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} placeholder="Medya kütüphanesinden bir adres yapıştırın" /></label><button className="button gold" disabled={saving} onClick={() => updateOrder(order, { status: order.status, publicNote, internalNote, estimatedDelivery: estimatedDelivery || null, quotedAmount: quotedAmount ? Number(quotedAmount) : null, mediaUrl: mediaUrl || null })}>{saving ? <LoaderCircle className="spin" /> : <Save />}Güncellemeyi kaydet</button></div></div></td></tr>}</>;
+}
 function ContentField({ fieldKey, label, type, initial, saving, onSave }: { fieldKey: string; label: string; type: string; initial: string; saving: boolean; onSave: (key: string, type: string, value: string) => void }) { const [value, setValue] = useState(initial); return <div className="content-field"><label><span>{label}</span><small>{fieldKey}</small></label>{type === "textarea" ? <textarea rows={4} value={value} onChange={(e) => setValue(e.target.value)} /> : <input value={value} onChange={(e) => setValue(e.target.value)} placeholder={type === "image" ? "Vercel Blob görsel adresi" : "Varsayılan içeriği kullan"} />}<button onClick={() => onSave(fieldKey, type, value)} disabled={saving}>{saving ? <LoaderCircle className="spin" /> : <Save />}</button></div>; }

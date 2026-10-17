@@ -16,7 +16,7 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
   const now = new Date().toISOString();
   const db = getDb();
   await db.batch([
-    db.update(orders).set({ status: parsed.data.status, estimatedDelivery: parsed.data.estimatedDelivery, quotedAmount: parsed.data.quotedAmount, updatedAt: now }).where(eq(orders.id, id)),
+    db.update(orders).set({ status: parsed.data.status, estimatedDelivery: parsed.data.estimatedDelivery, quotedAmount: parsed.data.quotedAmount, adminNotes: parsed.data.internalNote || undefined, updatedAt: now }).where(eq(orders.id, id)),
     db.insert(orderEvents).values({ id: crypto.randomUUID(), orderId: id, status: parsed.data.status, publicNote: parsed.data.publicNote, internalNote: parsed.data.internalNote, mediaUrl: parsed.data.mediaUrl, createdAt: now }),
   ]);
   return NextResponse.json({ ok: true });
