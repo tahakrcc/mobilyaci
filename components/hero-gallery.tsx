@@ -40,7 +40,7 @@ export function HeroGallery({ locale, initialImage, products }: { locale: Locale
       <div className={`hero-slides is-${direction}`}>
         {slides.map((slide, index) => (
           <div className={index === active ? "hero-slide active" : "hero-slide"} key={slide.id} aria-hidden={index !== active}>
-            <SiteImage src={slide.image} alt={locale === "tr" ? slide.nameTr : slide.nameEn} />
+            <SiteImage src={slide.image} alt={locale === "tr" ? slide.nameTr : slide.nameEn} priority={index === 0} sizes="(max-width: 980px) 100vw, 56vw" />
           </div>
         ))}
       </div>
