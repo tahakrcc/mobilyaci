@@ -43,7 +43,7 @@ Wooden Universe sitesini özel üretim ahşap/epoksi mobilya, sandalye ve masa-s
 ## 5. Veri tabanı ve dosya depolama — doğrulama bekliyor
 
 - Yönetim paneline Neon tablo sorgusu, Vercel Blob, e-posta ve yönetici güvenliği durum göstergeleri eklendi.
-- Neon şemasının üretim ortamında eksiksiz çalıştığı yönetici oturumundaki sistem durumu üzerinden doğrulanacak.
+- Neon şeması üretim ortamında yönetici oturumundan kuruldu; sistem durumu ve canlı sipariş kayıtlarıyla doğrulandı.
 - Vercel Blob bağlantısı ve medya yükleme akışı yönetici oturumuyla gerçek dosya kullanılarak test edilecek.
 - Katalog yönetim API uçları ve veritabanında JSON katalog kaydı tamamlandı; ayrı katalog tablolarına geçiş büyüme ihtiyacına göre değerlendirilecek.
 - Yeni siparişte yönetici ve müşteriye, durum değişikliğinde müşteriye e-posta gönderme akışı tamamlandı.
@@ -61,17 +61,17 @@ Wooden Universe sitesini özel üretim ahşap/epoksi mobilya, sandalye ve masa-s
 - 390 px mobil ve 1280 px masaüstü temel kontrolleri tamamlandı; yatay taşma bulunmadı.
 - Üretim derlemesi ve TypeScript kontrolü başarılı.
 - Lint kontrolünde hata veya görsel etiketi performans uyarısı bulunmuyor; görseller `next/image` ile sunuluyor.
-- Katalog yönetimi ve üretim servisleri tamamlandıktan sonra sipariş oluşturma, admin güncelleme, e-posta ve takip uçtan uca tekrar test edilecek.
+- Sipariş oluşturma, admin durum güncellemesi ve müşteri takip akışı üretim ortamında uçtan uca doğrulandı; e-posta testi Resend bağlantısını bekliyor.
 - Onaylanan sürüm GitHub ve Vercel üretim ortamına gönderilecek.
 
 ## Açık kalan işler — 17 Ekim 2026 denetimi
 
 ### Yönetim ve servis doğrulaması
 
-- [ ] Yönetici hesabıyla üretim paneline girip Neon tablo durumunu doğrulamak.
+- [x] Yönetici hesabıyla üretim paneline girip Neon tablo durumunu doğrulamak.
 - [ ] Vercel Blob'a gerçek bir görsel yükleyip medya kütüphanesi ve katalog kullanımını uçtan uca test etmek.
 - [ ] Resend üzerinden yönetici bildirimi, müşteri onayı ve durum güncelleme e-postalarını gerçek alıcıyla test etmek.
-- [ ] Sipariş oluşturma → admin güncelleme → müşteri takip ekranı akışını tek bir deneme siparişiyle tamamlamak.
+- [x] Sipariş oluşturma → admin güncelleme → müşteri takip ekranı akışını tek bir deneme siparişiyle tamamlamak.
 
 ### Medya yönetimi
 
