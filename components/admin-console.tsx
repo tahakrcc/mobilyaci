@@ -92,12 +92,19 @@ export function AdminConsole({ userName }: { userName: string }) {
     if (response.ok) { setNotice("Görsel silindi."); await load(); }
     else setNotice(body.error === "in-use" ? "Bu görsel katalogda kullanıldığı için silinmedi." : "Görsel silinemedi.");
   }
+  async function setupDatabase() {
+    setSaving("database"); setNotice("");
+    const response = await fetch("/api/admin/setup", { method: "POST" });
+    setSaving("");
+    if (response.ok) { setNotice("Neon tabloları hazırlandı."); await load(); }
+    else setNotice("Neon tabloları hazırlanamadı. Vercel günlüklerini kontrol edin.");
+  }
   const newOrders = orders.filter((item) => item.status === "received").length;
   const production = orders.filter((item) => ["material", "production", "epoxy", "finishing", "quality"].includes(item.status)).length;
   return <div className="admin-shell">
     <aside className="admin-sidebar"><div className="brand admin-brand"><span className="brand-mark">WU</span><span className="brand-word">WOODEN<span>UNIVERSE</span></span></div><nav><button onClick={() => setTab("dashboard")} className={tab === "dashboard" ? "active" : ""}><LayoutDashboard />Genel Bakış</button><button onClick={() => setTab("orders")} className={tab === "orders" ? "active" : ""}><Package />Siparişler <em>{newOrders}</em></button><button onClick={() => setTab("catalog")} className={tab === "catalog" ? "active" : ""}><PackageOpen />Katalog</button><button onClick={() => setTab("content")} className={tab === "content" ? "active" : ""}><Languages />İçerik ve Çeviri</button><button onClick={() => setTab("media")} className={tab === "media" ? "active" : ""}><ImagePlus />Medya</button><a href="/tr" target="_blank"><Settings2 />Siteyi görüntüle</a><form action="/api/admin/logout" method="post"><button type="submit">Çıkış yap</button></form></nav><small>{userName}</small></aside>
     <main className="admin-main"><header><div><p className="eyebrow">WOODENUNIVERSE STUDIO</p><h1>{tab === "dashboard" ? "Genel Bakış" : tab === "orders" ? "Sipariş Yönetimi" : tab === "catalog" ? "Katalog Yönetimi" : tab === "content" ? "İçerik ve Çeviri" : "Medya Kütüphanesi"}</h1></div>{loading && <LoaderCircle className="spin" />}</header>{notice && <div className="admin-notice" role="status" aria-live="polite">{notice}</div>}
-      {tab === "dashboard" && <><div className="stat-grid"><Stat label="Toplam talep" value={orders.length} /><Stat label="Yeni talep" value={newOrders} /><Stat label="Üretimde" value={production} /><Stat label="Tamamlanan" value={orders.filter((item) => item.status === "delivered").length} /></div><SystemPanel system={system} /><section className="admin-card"><h2>Son talepler</h2><OrderTable orders={orders.slice(0, 6)} saving={saving} updateOrder={updateOrder} /></section></>}
+      {tab === "dashboard" && <><div className="stat-grid"><Stat label="Toplam talep" value={orders.length} /><Stat label="Yeni talep" value={newOrders} /><Stat label="Üretimde" value={production} /><Stat label="Tamamlanan" value={orders.filter((item) => item.status === "delivered").length} /></div><SystemPanel system={system} settingUp={saving === "database"} onSetup={setupDatabase} /><section className="admin-card"><h2>Son talepler</h2><OrderTable orders={orders.slice(0, 6)} saving={saving} updateOrder={updateOrder} /></section></>}
       {tab === "orders" && <section className="admin-card"><div className="card-heading"><div><h2>Tüm sipariş talepleri</h2><p>Durum değişiklikleri müşterinin takip ekranına işlenir.</p></div></div><OrderTable orders={orders} saving={saving} updateOrder={updateOrder} /></section>}
       {tab === "catalog" && <CatalogManager />}
       {tab === "content" && <section className="admin-card"><div className="card-heading"><div><h2>Sayfa içeriği</h2><p>Boş bırakılan alanlar sitenin varsayılan metnini kullanır. Değişiklikler sayfa yenilendiğinde görünür.</p></div><div className="locale-tabs"><button className={locale === "tr" ? "active" : ""} onClick={() => setLocale("tr")}>TR</button><button className={locale === "en" ? "active" : ""} onClick={() => setLocale("en")}>EN</button></div></div><div className="content-editor">{fields.map(([key, label, type]) => { const row = content.find((item) => item.key === key && item.locale === locale); return <ContentField key={`${locale}:${key}:${row?.value ?? "default"}`} fieldKey={key} label={label} type={type} initial={row?.value ?? ""} saving={saving === `${locale}:${key}`} onSave={saveContent} />; })}</div></section>}
@@ -113,14 +120,14 @@ function MediaEditor({ item, saving, onSave, onDelete, onNotice }: { item: Media
 }
 
 function Stat({ label, value }: { label: string; value: number }) { return <div className="stat-card"><small>{label}</small><strong>{String(value).padStart(2, "0")}</strong></div>; }
-function SystemPanel({ system }: { system: SystemStatus | null }) {
+function SystemPanel({ system, settingUp, onSetup }: { system: SystemStatus | null; settingUp: boolean; onSetup: () => void }) {
   const items = [
     { label: "Neon veritabanı", ok: Boolean(system?.database.ok), note: system?.database.ok ? `${system.database.counts?.orders ?? 0} sipariş · ${system.database.counts?.media ?? 0} medya` : system?.database.configured ? "Bağlantı veya tablolar kontrol edilmeli" : "Bağlı değil" },
     { label: "Vercel Blob", ok: Boolean(system?.storage.configured), note: system?.storage.configured ? "Görsel yüklemeye hazır" : "Token eksik" },
     { label: "E-posta", ok: Boolean(system?.email.configured), note: system?.email.configured ? (system.email.senderConfigured ? "Özel gönderici hazır" : "Resend test göndericisi") : "Resend veya alıcı eksik" },
     { label: "Yönetici güvenliği", ok: Boolean(system?.admin.configured), note: system?.admin.configured ? "Oturum yapılandırıldı" : "Ayar eksik" },
   ];
-  return <section className="admin-card system-panel"><div className="card-heading"><div><h2>Sistem durumu</h2><p>Gizli değerler gösterilmeden üretim bağlantıları kontrol edilir.</p></div></div><div className="system-grid">{items.map((item) => <div key={item.label}><i className={item.ok ? "ok" : "warn"} /><span><strong>{item.label}</strong><small>{item.note}</small></span></div>)}</div></section>;
+  return <section className="admin-card system-panel"><div className="card-heading"><div><h2>Sistem durumu</h2><p>Gizli değerler gösterilmeden üretim bağlantıları kontrol edilir.</p></div>{system?.database.configured && !system.database.ok && <button className="button gold" onClick={onSetup} disabled={settingUp}>{settingUp ? <LoaderCircle className="spin" /> : <Settings2 />}Neon tablolarını hazırla</button>}</div><div className="system-grid">{items.map((item) => <div key={item.label}><i className={item.ok ? "ok" : "warn"} /><span><strong>{item.label}</strong><small>{item.note}</small></span></div>)}</div></section>;
 }
 function OrderTable({ orders, saving, updateOrder }: { orders: Order[]; saving: string; updateOrder: (order: Order, update: OrderUpdate) => void }) {
   const [expanded, setExpanded] = useState("");
