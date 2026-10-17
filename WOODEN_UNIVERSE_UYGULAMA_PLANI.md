@@ -63,3 +63,30 @@ Wooden Universe sitesini özel üretim ahşap/epoksi mobilya, sandalye ve masa-s
 - Lint kontrolünde hata yok; mevcut görsel etiketleri için performans uyarıları bulunuyor.
 - Katalog yönetimi ve üretim servisleri tamamlandıktan sonra sipariş oluşturma, admin güncelleme, e-posta ve takip uçtan uca tekrar test edilecek.
 - Onaylanan sürüm GitHub ve Vercel üretim ortamına gönderilecek.
+
+## Açık kalan işler — 17 Ekim 2026 denetimi
+
+### Yönetim ve servis doğrulaması
+
+- [ ] Yönetici hesabıyla üretim paneline girip Neon tablo durumunu doğrulamak.
+- [ ] Vercel Blob'a gerçek bir görsel yükleyip medya kütüphanesi ve katalog kullanımını uçtan uca test etmek.
+- [ ] Resend üzerinden yönetici bildirimi, müşteri onayı ve durum güncelleme e-postalarını gerçek alıcıyla test etmek.
+- [ ] Sipariş oluşturma → admin güncelleme → müşteri takip ekranı akışını tek bir deneme siparişiyle tamamlamak.
+
+### Medya yönetimi
+
+- [ ] Görseller için odak noktası ve mobil kırpma ayarlarını yönetim paneline eklemek.
+- [ ] Medya kütüphanesinde alternatif metinleri sonradan düzenleme ve kullanılmayan görseli silme işlemlerini eklemek.
+- [ ] Mevcut `<img>` kullanımlarını performans önceliğine göre `next/image` ile optimize etmek.
+
+### Katalog PDF'i
+
+- [ ] Kaynak PDF'i Wooden Universe adı, iletişim bilgileri ve siyah-gold tasarım sistemiyle yeniden markalamak.
+- [ ] PDF ürün görsellerinin web için optimize edilmiş sürümlerini çıkarmak.
+- [ ] Yenilenen PDF'i siteye indirilebilir katalog olarak eklemek.
+
+### Yayın öncesi son kontrol
+
+- [ ] Güncel sürümü 390 px mobil, tablet ve masaüstünde yeniden görsel olarak kontrol etmek.
+- [ ] Klavye kullanımı, odak görünürlüğü, form hata mesajları ve temel erişilebilirlik kontrolünü tamamlamak.
+- [ ] Üretim ortamında temel sayfalar ve API'ler için tekrarlanabilir bir hızlı kontrol listesi hazırlamak.
