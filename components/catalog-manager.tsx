@@ -1,5 +1,7 @@
 "use client";
 
+import { SiteImage } from "@/components/site-image";
+
 import { ArrowDown, ArrowUp, Eye, EyeOff, LoaderCircle, Plus, Save, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Product } from "@/lib/catalog";
@@ -18,8 +20,8 @@ function slugify(value: string) {
 function createItem(kind: Kind, position: number) {
   const id = `yeni-${kind}-${Date.now()}`;
   if (kind === "products") return { id, nameTr: "Yeni mobilya", nameEn: "New furniture", categoryTr: "Mobilya", categoryEn: "Furniture", category: "tables", wood: "walnut", epoxyTr: "Epoksisiz", epoxyEn: "No resin", dimensions: "Özel ölçü", image: "/images/real/natural-live-edge-table.jpeg", gallery: [], active: true } satisfies Product;
-  if (kind === "chairs") return { id, name: "Yeni Sandalye", type: { tr: "Sandalye", en: "Chair" }, description: { tr: "Projeye göre özelleştirilen Wooden Universe modeli.", en: "A Wooden Universe model tailored to the project." }, colors: ["Naturel / Natural"], image: "/images/catalog/chairs/page-02.jpg", gallery: [], index: position + 1, active: true } satisfies ChairModel;
-  return { id, name: "Yeni Set", kind: { tr: "Masa ve sandalye seti", en: "Table and chair set" }, sizes: "Özel ölçü", image: "/images/catalog/sets/page-35.jpg", gallery: [], capacity: { tr: "Projeye göre", en: "Project-specific" }, active: true } satisfies SetModel;
+  if (kind === "chairs") return { id, name: "Yeni Sandalye", type: { tr: "Sandalye", en: "Chair" }, description: { tr: "Projeye göre özelleştirilen Wooden Universe modeli.", en: "A Wooden Universe model tailored to the project." }, colors: ["Naturel / Natural"], image: "/images/catalog/chairs/page-02.webp", gallery: [], index: position + 1, active: true } satisfies ChairModel;
+  return { id, name: "Yeni Set", kind: { tr: "Masa ve sandalye seti", en: "Table and chair set" }, sizes: "Özel ölçü", image: "/images/catalog/sets/page-35.webp", gallery: [], capacity: { tr: "Projeye göre", en: "Project-specific" }, active: true } satisfies SetModel;
 }
 
 export function CatalogManager() {
@@ -103,10 +105,10 @@ export function CatalogManager() {
   if (loading) return <div className="catalog-loading"><LoaderCircle className="spin" /> Katalog hazırlanıyor…</div>;
   return <section className="admin-card catalog-manager">
     <div className="card-heading"><div><h2>Katalog yönetimi</h2><p>Ürünleri düzenleyin, sıralayın, pasife alın veya yeni kayıt ekleyin.</p></div><button className="button gold" onClick={save} disabled={saving}>{saving ? <LoaderCircle className="spin" /> : <Save />}Tümünü kaydet</button></div>
-    {notice && <div className="admin-notice">{notice}</div>}
+    {notice && <div className="admin-notice" role="status" aria-live="polite">{notice}</div>}
     <div className="catalog-kind-tabs">{(Object.keys(labels) as Kind[]).map((item) => <button key={item} className={kind === item ? "active" : ""} onClick={() => chooseKind(item)}>{labels[item]} <span>{catalog[item].length}</span></button>)}</div>
     <div className="catalog-editor-layout">
-      <aside className="catalog-list"><button className="catalog-add" onClick={addItem}><Plus /> Yeni kayıt</button>{items.map((item, index) => <button key={item.id} className={selected?.id === item.id ? "active" : ""} onClick={() => setSelectedId(item.id)}><img src={item.image} alt="" /><span><strong>{"name" in item ? item.name : item.nameTr}</strong><small>{String(index + 1).padStart(2, "0")} · {item.active === false ? "Pasif" : "Yayında"}</small></span></button>)}</aside>
+      <aside className="catalog-list"><button className="catalog-add" onClick={addItem}><Plus /> Yeni kayıt</button>{items.map((item, index) => <button key={item.id} className={selected?.id === item.id ? "active" : ""} onClick={() => setSelectedId(item.id)}><SiteImage src={item.image} alt="" /><span><strong>{"name" in item ? item.name : item.nameTr}</strong><small>{String(index + 1).padStart(2, "0")} · {item.active === false ? "Pasif" : "Yayında"}</small></span></button>)}</aside>
       <div className="catalog-form">{!selected ? <div className="empty-state">Bu koleksiyonda kayıt yok.</div> : <>
         <div className="catalog-form-toolbar"><button onClick={() => move(-1)} title="Yukarı taşı"><ArrowUp /></button><button onClick={() => move(1)} title="Aşağı taşı"><ArrowDown /></button><button onClick={() => updateItem({ ...selected, active: selected.active === false } as typeof selected)}>{selected.active === false ? <Eye /> : <EyeOff />}{selected.active === false ? "Yayınla" : "Pasife al"}</button><button className="danger" onClick={removeItem}><Trash2 />Sil</button></div>
         {kind === "products" ? <ProductFields item={selected as Product} onChange={updateItem} /> : kind === "chairs" ? <ChairFields item={selected as ChairModel} onChange={updateItem} /> : <SetFields item={selected as SetModel} onChange={updateItem} />}
@@ -116,7 +118,7 @@ export function CatalogManager() {
 }
 
 function BaseFields({ item, onChange }: { item: Product | ChairModel | SetModel; onChange: (item: Product | ChairModel | SetModel) => void }) {
-  return <><Field label="Kayıt adresi (slug)"><input value={item.id} onChange={(event) => onChange({ ...item, id: slugify(event.target.value) })} /></Field><Field label="Kapak görseli"><input value={item.image} onChange={(event) => onChange({ ...item, image: event.target.value })} placeholder="/images/... veya yüklenen görsel adresi" /></Field><Field label="Galeri görselleri"><textarea rows={4} value={(item.gallery ?? []).join("\n")} onChange={(event) => onChange({ ...item, gallery: event.target.value.split("\n").map((value) => value.trim()).filter(Boolean) })} placeholder="Her satıra bir görsel adresi" /></Field></>;
+  return <><Field label="Kayıt adresi (slug)"><input value={item.id} onChange={(event) => onChange({ ...item, id: slugify(event.target.value) })} /></Field><Field label="Kapak görseli"><input value={item.image} onChange={(event) => onChange({ ...item, image: event.target.value })} placeholder="/images/... veya yüklenen görsel adresi" /></Field><div className="field-grid"><Field label="Masaüstü odak noktası"><select value={item.imagePosition ?? "center"} onChange={(event) => onChange({ ...item, imagePosition: event.target.value })}>{["center","top","bottom","left","right"].map((value) => <option key={value} value={value}>{value}</option>)}</select></Field><Field label="Mobil odak noktası"><select value={item.mobileImagePosition ?? item.imagePosition ?? "center"} onChange={(event) => onChange({ ...item, mobileImagePosition: event.target.value })}>{["center","top","bottom","left","right"].map((value) => <option key={value} value={value}>{value}</option>)}</select></Field></div><Field label="Galeri görselleri"><textarea rows={4} value={(item.gallery ?? []).join("\n")} onChange={(event) => onChange({ ...item, gallery: event.target.value.split("\n").map((value) => value.trim()).filter(Boolean) })} placeholder="Her satıra bir görsel adresi" /></Field></>;
 }
 
 function ProductFields({ item, onChange }: { item: Product; onChange: (item: Product) => void }) {

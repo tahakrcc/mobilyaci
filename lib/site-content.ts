@@ -41,7 +41,7 @@ export const treeProfiles = {
     finish: { tr: "Doğal veya koyu tonlu yağ", en: "Natural or dark-toned oil" },
   },
   beech: {
-    image: "/images/catalog/chairs/page-02.jpg",
+    image: "/images/catalog/chairs/page-02.webp",
     title: { tr: "Kayın ağacı", en: "Beech wood" },
     lead: { tr: "Temiz dokusu, dengeli sertliği ve işlenebilirliğiyle sandalye konstrüksiyonlarında güvenilir bir temel.", en: "A dependable base for chair construction thanks to its clean texture, balanced hardness and workability." },
     origin: { tr: "Anadolu ve Avrupa", en: "Anatolia and Europe" },
@@ -59,7 +59,7 @@ export const treeProfiles = {
     finish: { tr: "Doğal yağ veya eskitme", en: "Natural oil or distressed finish" },
   },
   ash: {
-    image: "/images/catalog/sets/page-29.jpg",
+    image: "/images/catalog/sets/page-29.webp",
     title: { tr: "Dişbudak ağacı", en: "Ash wood" },
     lead: { tr: "Açık rengi ve uzun damarlarıyla çağdaş sandalye ve masa koleksiyonlarında ferah bir ifade taşır.", en: "Its pale color and long grain bring an airy expression to contemporary chair and table collections." },
     origin: { tr: "Anadolu ve Avrupa", en: "Anatolia and Europe" },
@@ -68,7 +68,7 @@ export const treeProfiles = {
     finish: { tr: "Naturel yağ veya renkli cila", en: "Natural oil or colored lacquer" },
   },
   iroko: {
-    image: "/images/catalog/sets/page-32.jpg",
+    image: "/images/catalog/sets/page-32.webp",
     title: { tr: "Iroko ağacı", en: "Iroko wood" },
     lead: { tr: "Altın kahve tonu ve dış koşullara dayanımıyla iç ve yarı açık alanlarda güçlü bir seçenektir.", en: "Its golden-brown tone and weather resistance make it a strong choice indoors and in semi-open spaces." },
     origin: { tr: "Batı Afrika", en: "West Africa" },

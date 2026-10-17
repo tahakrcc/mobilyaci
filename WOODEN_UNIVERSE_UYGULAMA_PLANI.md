@@ -38,7 +38,7 @@ Wooden Universe sitesini özel üretim ahşap/epoksi mobilya, sandalye ve masa-s
 - Paneldeki değişiklikler veritabanında saklanıyor ve ana sayfa, koleksiyon ve detay sayfalarına yansıyor.
 - Siparişlerde durum, müşteriye görünen açıklama, dahili not, tahmini teslim, teklif tutarı ve üretim fotoğrafı yönetimi eklendi.
 - Medya kütüphanesi yüklenen görselleri listeliyor ve katalogda kullanılmak üzere adreslerini kopyalıyor.
-- Sonraki adım: görsel odak noktası, alternatif metin ve mobil kırpma ayarları.
+- Görsel odak noktası, mobil kırpma, alternatif metin düzenleme ve güvenli medya silme işlemleri tamamlandı.
 
 ## 5. Veri tabanı ve dosya depolama — doğrulama bekliyor
 
@@ -49,18 +49,18 @@ Wooden Universe sitesini özel üretim ahşap/epoksi mobilya, sandalye ve masa-s
 - Yeni siparişte yönetici ve müşteriye, durum değişikliğinde müşteriye e-posta gönderme akışı tamamlandı.
 - Resend gönderimi gerçek alıcıyla uçtan uca doğrulanacak.
 
-## 6. Katalog yeniden markalama — sıradaki tasarım işi
+## 6. Katalog yeniden markalama — tamamlandı
 
-- PDF içindeki eski marka adı ve iletişim bilgileri Wooden Universe olarak değiştirilecek.
-- Kapak, bölüm başlıkları ve son iletişim sayfası siyah-gold marka sistemiyle yeniden tasarlanacak.
-- Web için ayrı optimize ürün görselleri çıkarılacak.
-- Yeni PDF indirilebilir katalog olarak siteye eklenecek.
+- PDF kapak ve iletişim alanları Wooden Universe marka ve iletişim bilgileriyle değiştirildi.
+- Kapak, bölüm başlıkları ve son iletişim sayfası siyah-gold marka sistemiyle yeniden tasarlandı.
+- Web için optimize WebP ürün görselleri çıkarıldı.
+- Yeni PDF indirilebilir katalog olarak site alt bilgisine eklendi.
 
 ## 7. Kalite ve yayın
 
 - 390 px mobil ve 1280 px masaüstü temel kontrolleri tamamlandı; yatay taşma bulunmadı.
 - Üretim derlemesi ve TypeScript kontrolü başarılı.
-- Lint kontrolünde hata yok; mevcut görsel etiketleri için performans uyarıları bulunuyor.
+- Lint kontrolünde hata veya görsel etiketi performans uyarısı bulunmuyor; görseller `next/image` ile sunuluyor.
 - Katalog yönetimi ve üretim servisleri tamamlandıktan sonra sipariş oluşturma, admin güncelleme, e-posta ve takip uçtan uca tekrar test edilecek.
 - Onaylanan sürüm GitHub ve Vercel üretim ortamına gönderilecek.
 
@@ -75,18 +75,18 @@ Wooden Universe sitesini özel üretim ahşap/epoksi mobilya, sandalye ve masa-s
 
 ### Medya yönetimi
 
-- [ ] Görseller için odak noktası ve mobil kırpma ayarlarını yönetim paneline eklemek.
-- [ ] Medya kütüphanesinde alternatif metinleri sonradan düzenleme ve kullanılmayan görseli silme işlemlerini eklemek.
-- [ ] Mevcut `<img>` kullanımlarını performans önceliğine göre `next/image` ile optimize etmek.
+- [x] Görseller için odak noktası ve mobil kırpma ayarlarını yönetim paneline eklemek.
+- [x] Medya kütüphanesinde alternatif metinleri sonradan düzenleme ve kullanılmayan görseli silme işlemlerini eklemek.
+- [x] Mevcut `<img>` kullanımlarını performans önceliğine göre `next/image` ile optimize etmek.
 
 ### Katalog PDF'i
 
-- [ ] Kaynak PDF'i Wooden Universe adı, iletişim bilgileri ve siyah-gold tasarım sistemiyle yeniden markalamak.
-- [ ] PDF ürün görsellerinin web için optimize edilmiş sürümlerini çıkarmak.
-- [ ] Yenilenen PDF'i siteye indirilebilir katalog olarak eklemek.
+- [x] Kaynak PDF'i Wooden Universe adı, iletişim bilgileri ve siyah-gold tasarım sistemiyle yeniden markalamak.
+- [x] PDF ürün görsellerinin web için optimize edilmiş sürümlerini çıkarmak.
+- [x] Yenilenen PDF'i siteye indirilebilir katalog olarak eklemek.
 
 ### Yayın öncesi son kontrol
 
-- [ ] Güncel sürümü 390 px mobil, tablet ve masaüstünde yeniden görsel olarak kontrol etmek.
-- [ ] Klavye kullanımı, odak görünürlüğü, form hata mesajları ve temel erişilebilirlik kontrolünü tamamlamak.
-- [ ] Üretim ortamında temel sayfalar ve API'ler için tekrarlanabilir bir hızlı kontrol listesi hazırlamak.
+- [x] Güncel sürümü 390 px mobil, 768 px tablet ve 1440 px masaüstünde yeniden görsel olarak kontrol etmek.
+- [x] Klavye kullanımı, odak görünürlüğü, form hata mesajları ve temel erişilebilirlik kontrolünü tamamlamak.
+- [x] Üretim ortamında temel sayfalar ve API'ler için tekrarlanabilir bir hızlı kontrol listesi ve komut hazırlamak.

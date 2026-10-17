@@ -17,7 +17,6 @@ const orderSchema = z.object({
   dimensions: z.string().trim().min(2).max(120),
   finish: z.string().trim().min(2).max(80),
   notes: z.string().trim().max(2000).default(""),
-  referenceUrl: z.string().url().max(500).optional().or(z.literal("")),
 });
 
 function randomToken() {
@@ -38,7 +37,7 @@ export async function POST(request: Request) {
     const trackingToken = randomToken();
     const db = getDb();
     await db.batch([
-      db.insert(orders).values({ ...normalizedData, referenceUrl: data.referenceUrl || null, id, orderNumber, trackingToken, status: "received", createdAt: now, updatedAt: now }),
+      db.insert(orders).values({ ...normalizedData, id, orderNumber, trackingToken, status: "received", createdAt: now, updatedAt: now }),
       db.insert(orderEvents).values({ id: crypto.randomUUID(), orderId: id, status: "received", publicNote: data.locale === "tr" ? "Sipariş talebiniz ekibimize ulaştı." : "Your request has reached our team.", createdAt: now }),
     ]);
     const notification = await notifyNewOrder({

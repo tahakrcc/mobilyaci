@@ -13,6 +13,8 @@ export type Product = {
   dimensions: string;
   image: string;
   gallery?: string[];
+  imagePosition?: string;
+  mobileImagePosition?: string;
   active?: boolean;
 };
 

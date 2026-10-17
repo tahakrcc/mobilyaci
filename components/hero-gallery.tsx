@@ -1,5 +1,7 @@
 "use client";
 
+import { SiteImage } from "@/components/site-image";
+
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { Locale, Product } from "@/lib/catalog";
@@ -38,7 +40,7 @@ export function HeroGallery({ locale, initialImage, products }: { locale: Locale
       <div className={`hero-slides is-${direction}`}>
         {slides.map((slide, index) => (
           <div className={index === active ? "hero-slide active" : "hero-slide"} key={slide.id} aria-hidden={index !== active}>
-            <img src={slide.image} alt={locale === "tr" ? slide.nameTr : slide.nameEn} />
+            <SiteImage src={slide.image} alt={locale === "tr" ? slide.nameTr : slide.nameEn} />
           </div>
         ))}
       </div>

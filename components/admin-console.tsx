@@ -1,6 +1,8 @@
 "use client";
 
-import { ChevronDown, ImagePlus, LayoutDashboard, LoaderCircle, Package, PackageOpen, Save, Settings2, Upload, Languages } from "lucide-react";
+import { SiteImage } from "@/components/site-image";
+
+import { ChevronDown, Copy, ImagePlus, LayoutDashboard, LoaderCircle, Package, PackageOpen, Save, Settings2, Trash2, Upload, Languages } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { orderStatuses } from "@/lib/catalog";
 import { CatalogManager } from "@/components/catalog-manager";
@@ -75,18 +77,39 @@ export function AdminConsole({ userName }: { userName: string }) {
     if (response.ok) { setNotice(`Görsel yüklendi: ${body.url}`); form.reset(); await load(); } else setNotice("Görsel yüklenemedi.");
     setSaving("");
   }
+  async function updateMedia(item: MediaRow, altTr: string, altEn: string) {
+    setSaving(item.id); setNotice("");
+    const response = await fetch("/api/admin/media", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id, altTr, altEn }) });
+    setSaving("");
+    if (response.ok) { setNotice("Alternatif metinler kaydedildi."); await load(); } else setNotice("Alternatif metinler kaydedilemedi.");
+  }
+  async function deleteMedia(item: MediaRow) {
+    if (!window.confirm(`“${item.filename}” görselini silmek istiyor musunuz?`)) return;
+    setSaving(item.id); setNotice("");
+    const response = await fetch("/api/admin/media", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id }) });
+    const body = (await response.json()) as { error?: string };
+    setSaving("");
+    if (response.ok) { setNotice("Görsel silindi."); await load(); }
+    else setNotice(body.error === "in-use" ? "Bu görsel katalogda kullanıldığı için silinmedi." : "Görsel silinemedi.");
+  }
   const newOrders = orders.filter((item) => item.status === "received").length;
   const production = orders.filter((item) => ["material", "production", "epoxy", "finishing", "quality"].includes(item.status)).length;
   return <div className="admin-shell">
     <aside className="admin-sidebar"><div className="brand admin-brand"><span className="brand-mark">WU</span><span className="brand-word">WOODEN<span>UNIVERSE</span></span></div><nav><button onClick={() => setTab("dashboard")} className={tab === "dashboard" ? "active" : ""}><LayoutDashboard />Genel Bakış</button><button onClick={() => setTab("orders")} className={tab === "orders" ? "active" : ""}><Package />Siparişler <em>{newOrders}</em></button><button onClick={() => setTab("catalog")} className={tab === "catalog" ? "active" : ""}><PackageOpen />Katalog</button><button onClick={() => setTab("content")} className={tab === "content" ? "active" : ""}><Languages />İçerik ve Çeviri</button><button onClick={() => setTab("media")} className={tab === "media" ? "active" : ""}><ImagePlus />Medya</button><a href="/tr" target="_blank"><Settings2 />Siteyi görüntüle</a><form action="/api/admin/logout" method="post"><button type="submit">Çıkış yap</button></form></nav><small>{userName}</small></aside>
-    <main className="admin-main"><header><div><p className="eyebrow">WOODENUNIVERSE STUDIO</p><h1>{tab === "dashboard" ? "Genel Bakış" : tab === "orders" ? "Sipariş Yönetimi" : tab === "catalog" ? "Katalog Yönetimi" : tab === "content" ? "İçerik ve Çeviri" : "Medya Kütüphanesi"}</h1></div>{loading && <LoaderCircle className="spin" />}</header>{notice && <div className="admin-notice">{notice}</div>}
+    <main className="admin-main"><header><div><p className="eyebrow">WOODENUNIVERSE STUDIO</p><h1>{tab === "dashboard" ? "Genel Bakış" : tab === "orders" ? "Sipariş Yönetimi" : tab === "catalog" ? "Katalog Yönetimi" : tab === "content" ? "İçerik ve Çeviri" : "Medya Kütüphanesi"}</h1></div>{loading && <LoaderCircle className="spin" />}</header>{notice && <div className="admin-notice" role="status" aria-live="polite">{notice}</div>}
       {tab === "dashboard" && <><div className="stat-grid"><Stat label="Toplam talep" value={orders.length} /><Stat label="Yeni talep" value={newOrders} /><Stat label="Üretimde" value={production} /><Stat label="Tamamlanan" value={orders.filter((item) => item.status === "delivered").length} /></div><SystemPanel system={system} /><section className="admin-card"><h2>Son talepler</h2><OrderTable orders={orders.slice(0, 6)} saving={saving} updateOrder={updateOrder} /></section></>}
       {tab === "orders" && <section className="admin-card"><div className="card-heading"><div><h2>Tüm sipariş talepleri</h2><p>Durum değişiklikleri müşterinin takip ekranına işlenir.</p></div></div><OrderTable orders={orders} saving={saving} updateOrder={updateOrder} /></section>}
       {tab === "catalog" && <CatalogManager />}
       {tab === "content" && <section className="admin-card"><div className="card-heading"><div><h2>Sayfa içeriği</h2><p>Boş bırakılan alanlar sitenin varsayılan metnini kullanır. Değişiklikler sayfa yenilendiğinde görünür.</p></div><div className="locale-tabs"><button className={locale === "tr" ? "active" : ""} onClick={() => setLocale("tr")}>TR</button><button className={locale === "en" ? "active" : ""} onClick={() => setLocale("en")}>EN</button></div></div><div className="content-editor">{fields.map(([key, label, type]) => { const row = content.find((item) => item.key === key && item.locale === locale); return <ContentField key={`${locale}:${key}:${row?.value ?? "default"}`} fieldKey={key} label={label} type={type} initial={row?.value ?? ""} saving={saving === `${locale}:${key}`} onSave={saveContent} />; })}</div></section>}
-      {tab === "media" && <section className="admin-card media-panel"><h2>Yeni görsel yükle</h2><p>Yüklenen görselin adresini katalogdaki kapak veya galeri alanlarına yapıştırabilirsiniz.</p><form onSubmit={upload}><label className="upload-zone"><Upload /><strong>Görsel seçin</strong><span>PNG, JPG, WebP veya AVIF · en fazla 4 MB</span><input name="file" type="file" accept="image/jpeg,image/png,image/webp,image/avif" required /></label><div className="field-grid"><label className="field"><span>Türkçe alternatif metin</span><input name="altTr" /></label><label className="field"><span>English alt text</span><input name="altEn" /></label></div><button className="button gold" disabled={saving === "media"}>{saving === "media" ? <LoaderCircle className="spin" /> : <Upload />}Yükle</button></form><div className="media-library"><div className="card-heading"><div><h2>Medya kütüphanesi</h2><p>{media.length} görsel · Adresi kopyalamak için görsele tıklayın.</p></div></div>{media.length ? <div className="media-grid">{media.map((item) => <button key={item.id} title="Görsel adresini kopyala" onClick={async () => { await navigator.clipboard.writeText(item.url); setNotice("Görsel adresi kopyalandı."); }}><img src={item.url} alt={item.altTr || item.filename} /><span>{item.filename}</span></button>)}</div> : <div className="empty-state">Henüz yüklenmiş görsel bulunmuyor.</div>}</div></section>}
+      {tab === "media" && <section className="admin-card media-panel"><h2>Yeni görsel yükle</h2><p>Yüklenen görselin adresini katalogdaki kapak veya galeri alanlarına yapıştırabilirsiniz.</p><form onSubmit={upload}><label className="upload-zone"><Upload /><strong>Görsel seçin</strong><span>PNG, JPG, WebP veya AVIF · en fazla 4 MB</span><input name="file" type="file" accept="image/jpeg,image/png,image/webp,image/avif" required /></label><div className="field-grid"><label className="field"><span>Türkçe alternatif metin</span><input name="altTr" /></label><label className="field"><span>English alt text</span><input name="altEn" /></label></div><button className="button gold" disabled={saving === "media"}>{saving === "media" ? <LoaderCircle className="spin" /> : <Upload />}Yükle</button></form><div className="media-library"><div className="card-heading"><div><h2>Medya kütüphanesi</h2><p>{media.length} görsel · Metinleri düzenleyebilir, adresi kopyalayabilir veya kullanılmayan görseli silebilirsiniz.</p></div></div>{media.length ? <div className="media-grid">{media.map((item) => <MediaEditor key={item.id} item={item} saving={saving === item.id} onSave={updateMedia} onDelete={deleteMedia} onNotice={setNotice} />)}</div> : <div className="empty-state">Henüz yüklenmiş görsel bulunmuyor.</div>}</div></section>}
     </main>
   </div>;
+}
+
+function MediaEditor({ item, saving, onSave, onDelete, onNotice }: { item: MediaRow; saving: boolean; onSave: (item: MediaRow, altTr: string, altEn: string) => void; onDelete: (item: MediaRow) => void; onNotice: (message: string) => void }) {
+  const [altTr, setAltTr] = useState(item.altTr);
+  const [altEn, setAltEn] = useState(item.altEn);
+  return <article className="media-editor"><button className="media-preview" type="button" title="Görsel adresini kopyala" onClick={async () => { await navigator.clipboard.writeText(item.url); onNotice("Görsel adresi kopyalandı."); }}><SiteImage src={item.url} alt={altTr || item.filename} /><span><Copy size={14} />{item.filename}</span></button><label><span>Türkçe alternatif metin</span><input value={altTr} onChange={(event) => setAltTr(event.target.value)} /></label><label><span>English alt text</span><input value={altEn} onChange={(event) => setAltEn(event.target.value)} /></label><div className="media-actions"><button type="button" onClick={() => onSave(item, altTr, altEn)} disabled={saving}>{saving ? <LoaderCircle className="spin" /> : <Save />} Kaydet</button><button type="button" className="danger" onClick={() => onDelete(item)} disabled={saving}><Trash2 /> Sil</button></div></article>;
 }
 
 function Stat({ label, value }: { label: string; value: number }) { return <div className="stat-card"><small>{label}</small><strong>{String(value).padStart(2, "0")}</strong></div>; }

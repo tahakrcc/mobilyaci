@@ -19,6 +19,8 @@ export type ChairModel = {
   colors: string[];
   image: string;
   gallery?: string[];
+  imagePosition?: string;
+  mobileImagePosition?: string;
   index: number;
   active?: boolean;
 };
@@ -30,6 +32,8 @@ export type SetModel = {
   sizes: string;
   image: string;
   gallery?: string[];
+  imagePosition?: string;
+  mobileImagePosition?: string;
   capacity: Localized;
   active?: boolean;
 };
@@ -67,7 +71,7 @@ export const chairModels: ChairModel[] = chairNames.map(([id, name, page], index
     en: "A Wooden Universe collection model with wood color and upholstery tailored to the project.",
   },
   colors: ["Ceviz / Walnut", "Naturel / Natural", "Siyah / Black", "Beyaz / White"],
-  image: `/images/catalog/chairs/page-${String(page).padStart(2, "0")}.jpg`,
+  image: `/images/catalog/chairs/page-${String(page).padStart(2, "0")}.webp`,
   index: index + 1,
 }));
 
@@ -78,13 +82,13 @@ export const setModels: SetModel[] = [
   ...compactSets.map((name, index) => ({
     id: `${name.toLowerCase()}-cafe-set`, name: `${name} Set`, kind: { tr: "Kafe ve restoran seti", en: "Cafe and restaurant set" },
     sizes: index < 9 ? "Ø60 / Ø70 / Ø80 cm" : "60×60 / 70×70 / 80×80 cm",
-    image: `/images/catalog/sets/page-${String(27 + Math.floor(index / 2)).padStart(2, "0")}.jpg`,
+    image: `/images/catalog/sets/page-${String(27 + Math.floor(index / 2)).padStart(2, "0")}.webp`,
     capacity: { tr: "2–4 kişilik", en: "Seats 2–4" },
   })),
   ...largeSets.map((name, index) => ({
     id: `${name.toLowerCase()}-six-seat-set`, name: `${name} Set`, kind: { tr: "Büyük yemek seti", en: "Large dining set" },
     sizes: index === 3 ? "Ø140 cm" : "Ø130 cm",
-    image: `/images/catalog/sets/page-${String(35 + index).padStart(2, "0")}.jpg`,
+    image: `/images/catalog/sets/page-${String(35 + index).padStart(2, "0")}.webp`,
     capacity: { tr: "6 kişilik", en: "Seats 6" },
   })),
 ];

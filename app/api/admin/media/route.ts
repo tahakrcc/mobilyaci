@@ -1,8 +1,9 @@
-import { put } from "@vercel/blob";
+import { del, put } from "@vercel/blob";
 import { NextResponse } from "next/server";
-import { desc } from "drizzle-orm";
+import { desc, eq, like } from "drizzle-orm";
+import { z } from "zod";
 import { getDb } from "@/db";
-import { media } from "@/db/schema";
+import { media, siteContent } from "@/db/schema";
 import { getAdmin } from "@/lib/admin-auth";
 
 export async function GET() {
@@ -22,4 +23,29 @@ export async function POST(request: Request) {
   const row = { id: crypto.randomUUID(), key: blob.pathname, url: blob.url, filename: file.name, mimeType: file.type, altTr: String(form.get("altTr") ?? ""), altEn: String(form.get("altEn") ?? ""), createdAt: new Date().toISOString() };
   await getDb().insert(media).values(row);
   return NextResponse.json(row, { status: 201 });
+}
+
+const updateSchema = z.object({ id: z.string().uuid(), altTr: z.string().max(300), altEn: z.string().max(300) });
+
+export async function PATCH(request: Request) {
+  if (!(await getAdmin())) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const parsed = updateSchema.safeParse(await request.json());
+  if (!parsed.success) return NextResponse.json({ error: "invalid-media" }, { status: 400 });
+  const [updated] = await getDb().update(media).set({ altTr: parsed.data.altTr.trim(), altEn: parsed.data.altEn.trim() }).where(eq(media.id, parsed.data.id)).returning();
+  return updated ? NextResponse.json(updated) : NextResponse.json({ error: "not-found" }, { status: 404 });
+}
+
+const deleteSchema = z.object({ id: z.string().uuid() });
+
+export async function DELETE(request: Request) {
+  if (!(await getAdmin())) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const parsed = deleteSchema.safeParse(await request.json());
+  if (!parsed.success) return NextResponse.json({ error: "invalid-media" }, { status: 400 });
+  const [item] = await getDb().select().from(media).where(eq(media.id, parsed.data.id)).limit(1);
+  if (!item) return NextResponse.json({ error: "not-found" }, { status: 404 });
+  const catalogRows = await getDb().select({ value: siteContent.value }).from(siteContent).where(like(siteContent.key, "catalog.%"));
+  if (catalogRows.some((row) => row.value.includes(item.url))) return NextResponse.json({ error: "in-use" }, { status: 409 });
+  await del(item.url);
+  await getDb().delete(media).where(eq(media.id, item.id));
+  return NextResponse.json({ ok: true });
 }

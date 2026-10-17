@@ -1,5 +1,7 @@
 "use client";
 
+import { SiteImage } from "@/components/site-image";
+
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { trees, type Locale, type Product } from "@/lib/catalog";
@@ -80,20 +82,20 @@ export function ProductFlipbook({ locale, products }: { locale: Locale; products
             {mobilePageInfo(product, active, tree, true)}
           </div>
           <div className={turning ? "book-page book-right is-changing" : "book-page book-right"}>
-            <img src={product.image} alt={tr ? product.nameTr : product.nameEn} />
+            <SiteImage src={product.image} position={product.imagePosition} mobilePosition={product.mobileImagePosition} alt={tr ? product.nameTr : product.nameEn} />
             <span>{String(active + 1).padStart(2, "0")}</span>
           </div>
           {turning && <div className={`book-turning is-${turning}`}>
             <div className="page-face page-front">
-              <div className="desktop-turn-face"><img src={product.image} alt="" /></div>
+              <div className="desktop-turn-face"><SiteImage src={product.image} position={product.imagePosition} mobilePosition={product.mobileImagePosition} alt="" /></div>
               <div className="mobile-turn-face">
-                {turning === "next" ? <img src={product.image} alt="" /> : mobilePageInfo(product, active, tree)}
+                {turning === "next" ? <SiteImage src={product.image} position={product.imagePosition} mobilePosition={product.mobileImagePosition} alt="" /> : mobilePageInfo(product, active, tree)}
               </div>
             </div>
             <div className="page-face page-back">
-              <div className="desktop-turn-face"><img src={incoming.image} alt="" /></div>
+              <div className="desktop-turn-face"><SiteImage src={incoming.image} alt="" /></div>
               <div className="mobile-turn-face">
-                {turning === "next" ? mobilePageInfo(incoming, incomingIndex, incomingTree) : <img src={incoming.image} alt="" />}
+                {turning === "next" ? mobilePageInfo(incoming, incomingIndex, incomingTree) : <SiteImage src={incoming.image} alt="" />}
               </div>
             </div>
           </div>}
