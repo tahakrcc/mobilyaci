@@ -2,10 +2,9 @@
 
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import type { Locale } from "@/lib/catalog";
-import { products } from "@/lib/catalog";
+import type { Locale, Product } from "@/lib/catalog";
 
-export function HeroGallery({ locale, initialImage }: { locale: Locale; initialImage: string }) {
+export function HeroGallery({ locale, initialImage, products }: { locale: Locale; initialImage: string; products: Product[] }) {
   const slides = products.map((product, index) => ({
     ...product,
     image: index === 0 ? initialImage : product.image,

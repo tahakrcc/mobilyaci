@@ -2,9 +2,9 @@
 
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { products, trees, type Locale } from "@/lib/catalog";
+import { trees, type Locale, type Product } from "@/lib/catalog";
 
-export function ProductFlipbook({ locale }: { locale: Locale }) {
+export function ProductFlipbook({ locale, products }: { locale: Locale; products: Product[] }) {
   const tr = locale === "tr";
   const [active, setActive] = useState(0);
   const [turning, setTurning] = useState<"next" | "prev" | null>(null);

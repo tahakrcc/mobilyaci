@@ -11,6 +11,29 @@ export type FurnitureCategory = {
   priority?: boolean;
 };
 
+export type ChairModel = {
+  id: string;
+  name: string;
+  type: Localized;
+  description: Localized;
+  colors: string[];
+  image: string;
+  gallery?: string[];
+  index: number;
+  active?: boolean;
+};
+
+export type SetModel = {
+  id: string;
+  name: string;
+  kind: Localized;
+  sizes: string;
+  image: string;
+  gallery?: string[];
+  capacity: Localized;
+  active?: boolean;
+};
+
 export const furnitureCategories: FurnitureCategory[] = [
   { id: "tv-units", title: { tr: "TV Üniteleri", en: "TV Units" }, eyebrow: { tr: "ÖNCELİKLİ KOLEKSİYON", en: "PRIORITY COLLECTION" }, description: { tr: "Masif ahşap, açık raf ve kapalı depolamayı mekâna göre birleştiren özel üretimler.", en: "Bespoke compositions combining solid wood, open shelving and closed storage." }, image: "/images/real/black-epoxy-dining.jpeg", priority: true },
   { id: "consoles", title: { tr: "Konsollar", en: "Consoles" }, eyebrow: { tr: "ÖNCELİKLİ KOLEKSİYON", en: "PRIORITY COLLECTION" }, description: { tr: "Doğal damar, işlevsel depolama ve metal detaylarla kurulan bağımsız parçalar.", en: "Statement pieces shaped through natural grain, storage and metal detail." }, image: "/images/real/solid-console.jpeg", priority: true },
@@ -35,7 +58,7 @@ const chairNames = [
   ["verde-bar", "Verde Bar", 25], ["louis-bar", "Louis Bar", 25], ["madam-bar", "Madam Bar", 26],
 ] as const;
 
-export const chairModels = chairNames.map(([id, name, page], index) => ({
+export const chairModels: ChairModel[] = chairNames.map(([id, name, page], index) => ({
   id,
   name,
   type: id.includes("bar") ? ({ tr: "Bar sandalyesi", en: "Bar chair" } satisfies Localized) : ({ tr: "Sandalye", en: "Chair" } satisfies Localized),
@@ -51,7 +74,7 @@ export const chairModels = chairNames.map(([id, name, page], index) => ({
 const compactSets = ["Rolla", "Paris", "Arc", "Luna", "Aura", "Pear", "Snack", "Sisy", "Nest", "Henna", "Riva", "Temodel", "Pixel"];
 const largeSets = ["Luna", "Riva", "Nest", "Fransuva"];
 
-export const setModels = [
+export const setModels: SetModel[] = [
   ...compactSets.map((name, index) => ({
     id: `${name.toLowerCase()}-cafe-set`, name: `${name} Set`, kind: { tr: "Kafe ve restoran seti", en: "Cafe and restaurant set" },
     sizes: index < 9 ? "Ø60 / Ø70 / Ø80 cm" : "60×60 / 70×70 / 80×80 cm",

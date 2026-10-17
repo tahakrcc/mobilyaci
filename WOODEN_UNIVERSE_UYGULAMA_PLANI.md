@@ -29,18 +29,20 @@ Wooden Universe sitesini özel üretim ahşap/epoksi mobilya, sandalye ve masa-s
 - Ödeme alınmadığı ve talebin teklif niteliğinde olduğu açıkça belirtiliyor.
 - Mevcut sipariş kodu, e-posta bildirimi ve takip akışı korunuyor.
 
-## 4. Yönetim paneli — devam edecek
+## 4. Yönetim paneli — katalog yönetimi tamamlandı
 
 - Yeni mobilya, sandalye ve set ana sayfa metinleri TR/EN düzenleme alanlarına eklendi.
 - Sandalye ve set kapak görselleri panelden değiştirilebilir hale getirildi.
-- Sonraki adım: ürün/model/set ekleme, silme, pasife alma, sıralama ve çoklu görsel yönetimi için katalog CRUD ekranı.
+- Mobilya, sandalye ve set ekleme, düzenleme, silme, pasife alma ve sıralama ekranı tamamlandı.
+- Kapak görseli ve çoklu galeri görselleri katalog kayıtlarına bağlandı.
+- Paneldeki değişiklikler veritabanında saklanıyor ve ana sayfa, koleksiyon ve detay sayfalarına yansıyor.
 - Sonraki adım: görsel odak noktası, alternatif metin ve mobil kırpma ayarları.
 
 ## 5. Veri tabanı ve dosya depolama — doğrulama bekliyor
 
 - Neon şemasının üretim ortamında eksiksiz çalıştığı doğrulanacak.
 - Vercel Blob bağlantısı ve medya yükleme akışı gerçek dosyayla test edilecek.
-- Katalog tabloları ve yönetim API uçları eklenecek.
+- Katalog yönetim API uçları ve veritabanında JSON katalog kaydı tamamlandı; ayrı katalog tablolarına geçiş büyüme ihtiyacına göre değerlendirilecek.
 - Sipariş e-postası gerçek alıcıyla uçtan uca doğrulanacak.
 
 ## 6. Katalog yeniden markalama — sıradaki tasarım işi

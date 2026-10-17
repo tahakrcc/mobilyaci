@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { InnerHero, InnerShell, InquiryBand } from "@/components/inner-page";
 import { RevealHeading3D } from "@/components/editorial-motion";
 import { furnitureCategories, localized } from "@/lib/collection-data";
-import { isLocale, products } from "@/lib/catalog";
+import { isLocale } from "@/lib/catalog";
+import { getCatalog } from "@/lib/catalog-store";
 
 export default async function FurnitureCategoryPage({ params }: { params: Promise<{ locale: string; category: string }> }) {
   const { locale: rawLocale, category } = await params;
@@ -12,6 +13,7 @@ export default async function FurnitureCategoryPage({ params }: { params: Promis
   if (!item) notFound();
   const locale = rawLocale;
   const tr = locale === "tr";
+  const products = await getCatalog("products");
   const examples = products.filter((product) => product.category === category || (category === "tables" && product.categoryTr.includes("Masa")));
   return <InnerShell locale={locale}>
     <InnerHero locale={locale} eyebrow={localized(item.eyebrow, locale)} title={localized(item.title, locale)} lead={localized(item.description, locale)} image={item.image} index="FURNITURE / WU" />

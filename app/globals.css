@@ -746,6 +746,50 @@ html, body, .public-site { max-width: 100%; overflow-x: clip; }
   .catalog-spread > div { padding: 28px 20px; }
 }
 
+/* Catalog management */
+.catalog-loading { min-height: 260px; display: flex; align-items: center; justify-content: center; gap: 12px; color: var(--wu-smoke); }
+.catalog-manager { padding: 0; overflow: hidden; }
+.catalog-manager > .card-heading { align-items: center; padding: 28px; margin: 0; border-bottom: 1px solid var(--wu-line); }
+.catalog-manager .button { border: 0; }
+.catalog-kind-tabs { display: flex; gap: 1px; padding: 1px; background: var(--wu-line); }
+.catalog-kind-tabs button { flex: 1; min-height: 54px; color: var(--wu-smoke); border: 0; background: #0b0b08; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.catalog-kind-tabs button.active { color: #080806; background: var(--wu-gold-light); }
+.catalog-kind-tabs span { margin-left: 8px; opacity: .55; }
+.catalog-editor-layout { min-height: 660px; display: grid; grid-template-columns: 290px minmax(0,1fr); }
+.catalog-list { max-height: 760px; overflow-y: auto; border-right: 1px solid var(--wu-line); background: #090907; }
+.catalog-list > button { width: 100%; min-height: 72px; display: grid; grid-template-columns: 52px 1fr; gap: 12px; align-items: center; padding: 10px 14px; color: var(--wu-smoke); border: 0; border-bottom: 1px solid var(--wu-line); background: transparent; text-align: left; }
+.catalog-list > button.active { color: var(--wu-ivory); background: rgba(214,166,79,.1); box-shadow: inset 3px 0 var(--wu-gold); }
+.catalog-list > button img { width: 52px; height: 52px; object-fit: cover; filter: saturate(.6) brightness(.75); }
+.catalog-list > button span { min-width: 0; }
+.catalog-list > button strong, .catalog-list > button small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.catalog-list > button strong { color: inherit; font: 400 15px Georgia,serif; }.catalog-list > button small { margin-top: 5px; color: rgba(244,236,217,.38); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
+.catalog-list > .catalog-add { position: sticky; z-index: 2; top: 0; min-height: 54px; display: flex; justify-content: center; color: var(--wu-gold-light); background: #11100c; }.catalog-add svg { width: 15px; }
+.catalog-form { padding: 28px; overflow: hidden; }
+.catalog-form-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--wu-line); }
+.catalog-form-toolbar button { min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 13px; color: var(--wu-gold-light); border: 1px solid var(--wu-line); background: transparent; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.catalog-form-toolbar button:first-child, .catalog-form-toolbar button:nth-child(2) { width: 40px; padding: 0; }.catalog-form-toolbar button.danger { margin-left: auto; color: #f0a693; border-color: rgba(212,83,55,.35); }.catalog-form-toolbar svg { width: 14px; }
+.catalog-fields { display: grid; gap: 20px; }.catalog-fields .field-grid { margin: 0; }
+.catalog-fields .field { display: grid; align-content: start; gap: 8px; color: var(--wu-gold-light); font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.catalog-fields input, .catalog-fields textarea, .catalog-fields select { width: 100%; min-height: 44px; padding: 11px 12px; color: var(--wu-ivory); border: 1px solid var(--wu-line); background: #090907; outline: none; font: 400 13px/1.45 system-ui,sans-serif; letter-spacing: 0; text-transform: none; }
+.catalog-fields textarea { resize: vertical; }.catalog-fields input:focus, .catalog-fields textarea:focus, .catalog-fields select:focus { border-color: var(--wu-gold); }
+.managed-gallery { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1px; margin: 1px 6vw 110px; padding: 1px; background: var(--wu-line); }
+.managed-gallery img { width: 100%; min-height: 420px; height: 58vw; max-height: 720px; object-fit: cover; filter: saturate(.7) brightness(.78); }
+.media-library { margin-top: 42px; padding-top: 30px; border-top: 1px solid var(--wu-line); }.media-library .card-heading { margin-bottom: 20px; }
+.media-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 10px; }.media-grid button { min-width: 0; padding: 0 0 10px; overflow: hidden; color: var(--wu-smoke); border: 1px solid var(--wu-line); background: #090907; text-align: left; }.media-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; filter: saturate(.68) brightness(.75); transition: .3s; }.media-grid button:hover img { filter: saturate(.9) brightness(.92); }.media-grid span { display: block; padding: 10px 10px 0; overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 980px) {
+  .catalog-editor-layout { grid-template-columns: 220px minmax(0,1fr); }
+  .media-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (max-width: 700px) {
+  .catalog-manager > .card-heading { align-items: stretch; flex-direction: column; gap: 18px; padding: 20px; }.catalog-manager > .card-heading .button { width: 100%; justify-content: center; }
+  .catalog-kind-tabs { overflow-x: auto; }.catalog-kind-tabs button { min-width: 145px; }
+  .catalog-editor-layout { display: block; min-height: 0; }.catalog-list { max-height: 245px; border-right: 0; border-bottom: 1px solid var(--wu-line); }.catalog-list > button { min-height: 62px; }
+  .catalog-form { padding: 20px; }.catalog-form-toolbar button.danger { margin-left: 0; }.catalog-fields .field-grid { grid-template-columns: 1fr; }
+  .managed-gallery { grid-template-columns: 1fr; margin: 1px 20px 75px; }.managed-gallery img { min-height: 320px; height: 105vw; }
+  .media-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+
 /* Cinematic mobile hero: copy lives on the photographic slider */
 @media (max-width: 640px) {
   .hero { position: relative; display: block; min-height: 100svh; padding-top: 72px; isolation: isolate; }

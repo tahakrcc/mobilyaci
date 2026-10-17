@@ -1,11 +1,13 @@
 "use client";
 
-import { ImagePlus, LayoutDashboard, LoaderCircle, Package, Save, Settings2, Upload, Languages } from "lucide-react";
+import { ImagePlus, LayoutDashboard, LoaderCircle, Package, PackageOpen, Save, Settings2, Upload, Languages } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { orderStatuses } from "@/lib/catalog";
+import { CatalogManager } from "@/components/catalog-manager";
 
 type Order = { id: string; orderNumber: string; customerName: string; email: string; phone: string; city: string; productType: string; woodType: string; epoxy: string; dimensions: string; status: string; createdAt: string; notificationStatus: string };
 type ContentRow = { id: string; key: string; locale: "tr" | "en"; type: string; value: string };
+type MediaRow = { id: string; filename: string; url: string; altTr: string; altEn: string; createdAt: string };
 const fields = [
   ["hero.title", "Hero başlığı", "text"], ["hero.subtitle", "Hero açıklaması", "textarea"], ["hero.image", "Hero görsel URL", "image"],
   ["story.title", "3D bölüm başlığı", "text"], ["story.body", "3D bölüm açıklaması", "textarea"], ["products.title", "Koleksiyon başlığı", "text"],
@@ -21,26 +23,29 @@ const fields = [
 ] as const;
 
 export function AdminConsole({ userName }: { userName: string }) {
-  const [tab, setTab] = useState<"dashboard" | "orders" | "content" | "media">("dashboard");
+  const [tab, setTab] = useState<"dashboard" | "orders" | "catalog" | "content" | "media">("dashboard");
   const [orders, setOrders] = useState<Order[]>([]);
   const [content, setContent] = useState<ContentRow[]>([]);
+  const [media, setMedia] = useState<MediaRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState("");
   const [locale, setLocale] = useState<"tr" | "en">("tr");
   const [notice, setNotice] = useState("");
   async function load() {
     setLoading(true);
-    const [orderResponse, contentResponse] = await Promise.all([fetch("/api/admin/orders"), fetch("/api/admin/content")]);
+    const [orderResponse, contentResponse, mediaResponse] = await Promise.all([fetch("/api/admin/orders"), fetch("/api/admin/content"), fetch("/api/admin/media")]);
     if (orderResponse.ok) setOrders(((await orderResponse.json()) as { orders: Order[] }).orders);
     if (contentResponse.ok) setContent(((await contentResponse.json()) as { content: ContentRow[] }).content);
+    if (mediaResponse.ok) setMedia(((await mediaResponse.json()) as { media: MediaRow[] }).media);
     setLoading(false);
   }
   useEffect(() => {
     let cancelled = false;
-    void Promise.all([fetch("/api/admin/orders"), fetch("/api/admin/content")]).then(async ([orderResponse, contentResponse]) => {
+    void Promise.all([fetch("/api/admin/orders"), fetch("/api/admin/content"), fetch("/api/admin/media")]).then(async ([orderResponse, contentResponse, mediaResponse]) => {
       if (cancelled) return;
       if (orderResponse.ok) setOrders(((await orderResponse.json()) as { orders: Order[] }).orders);
       if (contentResponse.ok) setContent(((await contentResponse.json()) as { content: ContentRow[] }).content);
+      if (mediaResponse.ok) setMedia(((await mediaResponse.json()) as { media: MediaRow[] }).media);
       setLoading(false);
     });
     return () => { cancelled = true; };
@@ -62,18 +67,19 @@ export function AdminConsole({ userName }: { userName: string }) {
     const form = event.currentTarget;
     const response = await fetch("/api/admin/media", { method: "POST", body: new FormData(form) });
     const body = (await response.json()) as { url?: string };
-    if (response.ok) { setNotice(`Görsel yüklendi: ${body.url}`); form.reset(); } else setNotice("Görsel yüklenemedi.");
+    if (response.ok) { setNotice(`Görsel yüklendi: ${body.url}`); form.reset(); await load(); } else setNotice("Görsel yüklenemedi.");
     setSaving("");
   }
   const newOrders = orders.filter((item) => item.status === "received").length;
   const production = orders.filter((item) => ["material", "production", "epoxy", "finishing", "quality"].includes(item.status)).length;
   return <div className="admin-shell">
-    <aside className="admin-sidebar"><div className="brand admin-brand"><span className="brand-mark">WU</span><span className="brand-word">WOODEN<span>UNIVERSE</span></span></div><nav><button onClick={() => setTab("dashboard")} className={tab === "dashboard" ? "active" : ""}><LayoutDashboard />Genel Bakış</button><button onClick={() => setTab("orders")} className={tab === "orders" ? "active" : ""}><Package />Siparişler <em>{newOrders}</em></button><button onClick={() => setTab("content")} className={tab === "content" ? "active" : ""}><Languages />İçerik ve Çeviri</button><button onClick={() => setTab("media")} className={tab === "media" ? "active" : ""}><ImagePlus />Medya</button><a href="/tr" target="_blank"><Settings2 />Siteyi görüntüle</a><form action="/api/admin/logout" method="post"><button type="submit">Çıkış yap</button></form></nav><small>{userName}</small></aside>
-    <main className="admin-main"><header><div><p className="eyebrow">WOODENUNIVERSE STUDIO</p><h1>{tab === "dashboard" ? "Genel Bakış" : tab === "orders" ? "Sipariş Yönetimi" : tab === "content" ? "İçerik ve Çeviri" : "Medya Kütüphanesi"}</h1></div>{loading && <LoaderCircle className="spin" />}</header>{notice && <div className="admin-notice">{notice}</div>}
+    <aside className="admin-sidebar"><div className="brand admin-brand"><span className="brand-mark">WU</span><span className="brand-word">WOODEN<span>UNIVERSE</span></span></div><nav><button onClick={() => setTab("dashboard")} className={tab === "dashboard" ? "active" : ""}><LayoutDashboard />Genel Bakış</button><button onClick={() => setTab("orders")} className={tab === "orders" ? "active" : ""}><Package />Siparişler <em>{newOrders}</em></button><button onClick={() => setTab("catalog")} className={tab === "catalog" ? "active" : ""}><PackageOpen />Katalog</button><button onClick={() => setTab("content")} className={tab === "content" ? "active" : ""}><Languages />İçerik ve Çeviri</button><button onClick={() => setTab("media")} className={tab === "media" ? "active" : ""}><ImagePlus />Medya</button><a href="/tr" target="_blank"><Settings2 />Siteyi görüntüle</a><form action="/api/admin/logout" method="post"><button type="submit">Çıkış yap</button></form></nav><small>{userName}</small></aside>
+    <main className="admin-main"><header><div><p className="eyebrow">WOODENUNIVERSE STUDIO</p><h1>{tab === "dashboard" ? "Genel Bakış" : tab === "orders" ? "Sipariş Yönetimi" : tab === "catalog" ? "Katalog Yönetimi" : tab === "content" ? "İçerik ve Çeviri" : "Medya Kütüphanesi"}</h1></div>{loading && <LoaderCircle className="spin" />}</header>{notice && <div className="admin-notice">{notice}</div>}
       {tab === "dashboard" && <><div className="stat-grid"><Stat label="Toplam talep" value={orders.length} /><Stat label="Yeni talep" value={newOrders} /><Stat label="Üretimde" value={production} /><Stat label="Tamamlanan" value={orders.filter((item) => item.status === "delivered").length} /></div><section className="admin-card"><h2>Son talepler</h2><OrderTable orders={orders.slice(0, 6)} saving={saving} updateOrder={updateOrder} /></section></>}
       {tab === "orders" && <section className="admin-card"><div className="card-heading"><div><h2>Tüm sipariş talepleri</h2><p>Durum değişiklikleri müşterinin takip ekranına işlenir.</p></div></div><OrderTable orders={orders} saving={saving} updateOrder={updateOrder} /></section>}
+      {tab === "catalog" && <CatalogManager />}
       {tab === "content" && <section className="admin-card"><div className="card-heading"><div><h2>Sayfa içeriği</h2><p>Boş bırakılan alanlar sitenin varsayılan metnini kullanır. Değişiklikler sayfa yenilendiğinde görünür.</p></div><div className="locale-tabs"><button className={locale === "tr" ? "active" : ""} onClick={() => setLocale("tr")}>TR</button><button className={locale === "en" ? "active" : ""} onClick={() => setLocale("en")}>EN</button></div></div><div className="content-editor">{fields.map(([key, label, type]) => { const row = content.find((item) => item.key === key && item.locale === locale); return <ContentField key={`${locale}:${key}:${row?.value ?? "default"}`} fieldKey={key} label={label} type={type} initial={row?.value ?? ""} saving={saving === `${locale}:${key}`} onSave={saveContent} />; })}</div></section>}
-      {tab === "media" && <section className="admin-card media-panel"><h2>Yeni görsel yükle</h2><p>Yüklenen görselin adresini içerik alanlarında veya sipariş güncellemelerinde kullanabilirsiniz.</p><form onSubmit={upload}><label className="upload-zone"><Upload /><strong>Görsel seçin</strong><span>PNG, JPG, WebP veya AVIF · en fazla 4 MB</span><input name="file" type="file" accept="image/jpeg,image/png,image/webp,image/avif" required /></label><div className="field-grid"><label className="field"><span>Türkçe alternatif metin</span><input name="altTr" /></label><label className="field"><span>English alt text</span><input name="altEn" /></label></div><button className="button gold" disabled={saving === "media"}>{saving === "media" ? <LoaderCircle className="spin" /> : <Upload />}Yükle</button></form></section>}
+      {tab === "media" && <section className="admin-card media-panel"><h2>Yeni görsel yükle</h2><p>Yüklenen görselin adresini katalogdaki kapak veya galeri alanlarına yapıştırabilirsiniz.</p><form onSubmit={upload}><label className="upload-zone"><Upload /><strong>Görsel seçin</strong><span>PNG, JPG, WebP veya AVIF · en fazla 4 MB</span><input name="file" type="file" accept="image/jpeg,image/png,image/webp,image/avif" required /></label><div className="field-grid"><label className="field"><span>Türkçe alternatif metin</span><input name="altTr" /></label><label className="field"><span>English alt text</span><input name="altEn" /></label></div><button className="button gold" disabled={saving === "media"}>{saving === "media" ? <LoaderCircle className="spin" /> : <Upload />}Yükle</button></form><div className="media-library"><div className="card-heading"><div><h2>Medya kütüphanesi</h2><p>{media.length} görsel · Adresi kopyalamak için görsele tıklayın.</p></div></div>{media.length ? <div className="media-grid">{media.map((item) => <button key={item.id} title="Görsel adresini kopyala" onClick={async () => { await navigator.clipboard.writeText(item.url); setNotice("Görsel adresi kopyalandı."); }}><img src={item.url} alt={item.altTr || item.filename} /><span>{item.filename}</span></button>)}</div> : <div className="empty-state">Henüz yüklenmiş görsel bulunmuyor.</div>}</div></section>}
     </main>
   </div>;
 }

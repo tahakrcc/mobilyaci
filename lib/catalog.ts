@@ -1,5 +1,21 @@
 export type Locale = "tr" | "en";
 
+export type Product = {
+  id: string;
+  nameTr: string;
+  nameEn: string;
+  categoryTr: string;
+  categoryEn: string;
+  category?: string;
+  wood: string;
+  epoxyTr: string;
+  epoxyEn: string;
+  dimensions: string;
+  image: string;
+  gallery?: string[];
+  active?: boolean;
+};
+
 export const isLocale = (value: string): value is Locale => value === "tr" || value === "en";
 
 export const copy = {
@@ -50,7 +66,7 @@ export const trees = [
   { id: "sipo", tr: "Sipo", en: "Sipo", years: "50–150+", tone: "#7a4934", traitTr: "Dengeli kızıl ton, rafine ve homojen doku", traitEn: "Balanced red tone with a refined even texture" },
 ];
 
-export const products = [
+export const products: Product[] = [
   { id: "olive-noir", nameTr: "Zeytin Noir Yemek Masası", nameEn: "Olive Noir Dining Table", categoryTr: "Yemek Masası", categoryEn: "Dining Table", category: "tables", wood: "olive", epoxyTr: "Füme siyah", epoxyEn: "Smoky black", dimensions: "Özel ölçü", image: "/images/real/black-epoxy-dining.jpeg" },
   { id: "turquoise-river", nameTr: "Zeytin Turkuaz Masa", nameEn: "Olive Turquoise Table", categoryTr: "Yemek Masası", categoryEn: "Dining Table", category: "tables", wood: "olive", epoxyTr: "Şeffaf turkuaz", epoxyEn: "Transparent turquoise", dimensions: "Özel ölçü", image: "/images/real/turquoise-epoxy-table.jpeg" },
   { id: "walnut-executive", nameTr: "Ceviz Executive Çalışma Masası", nameEn: "Walnut Executive Desk", categoryTr: "Çalışma Masası", categoryEn: "Executive Desk", wood: "walnut", epoxyTr: "Füme çatlak dolgu", epoxyEn: "Smoky fissure fill", dimensions: "200 × 90 × 76 cm", image: "/images/walnut-desk.webp" },
