@@ -43,6 +43,8 @@ export async function POST(request: Request) {
     ]);
     const notification = await notifyNewOrder({
       orderNumber,
+      trackingToken,
+      locale: data.locale,
       customerName: data.customerName,
       email: data.email,
       phone: data.phone,

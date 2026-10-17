@@ -42,10 +42,12 @@ Wooden Universe sitesini özel üretim ahşap/epoksi mobilya, sandalye ve masa-s
 
 ## 5. Veri tabanı ve dosya depolama — doğrulama bekliyor
 
-- Neon şemasının üretim ortamında eksiksiz çalıştığı doğrulanacak.
-- Vercel Blob bağlantısı ve medya yükleme akışı gerçek dosyayla test edilecek.
+- Yönetim paneline Neon tablo sorgusu, Vercel Blob, e-posta ve yönetici güvenliği durum göstergeleri eklendi.
+- Neon şemasının üretim ortamında eksiksiz çalıştığı yönetici oturumundaki sistem durumu üzerinden doğrulanacak.
+- Vercel Blob bağlantısı ve medya yükleme akışı yönetici oturumuyla gerçek dosya kullanılarak test edilecek.
 - Katalog yönetim API uçları ve veritabanında JSON katalog kaydı tamamlandı; ayrı katalog tablolarına geçiş büyüme ihtiyacına göre değerlendirilecek.
-- Sipariş e-postası gerçek alıcıyla uçtan uca doğrulanacak.
+- Yeni siparişte yönetici ve müşteriye, durum değişikliğinde müşteriye e-posta gönderme akışı tamamlandı.
+- Resend gönderimi gerçek alıcıyla uçtan uca doğrulanacak.
 
 ## 6. Katalog yeniden markalama — sıradaki tasarım işi
 

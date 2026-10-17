@@ -9,6 +9,7 @@ type Order = { id: string; orderNumber: string; customerName: string; email: str
 type OrderUpdate = { status: string; publicNote?: string; internalNote?: string; estimatedDelivery?: string | null; quotedAmount?: number | null; mediaUrl?: string | null };
 type ContentRow = { id: string; key: string; locale: "tr" | "en"; type: string; value: string };
 type MediaRow = { id: string; filename: string; url: string; altTr: string; altEn: string; createdAt: string };
+type SystemStatus = { database: { configured: boolean; ok: boolean; counts?: Record<string, number> }; storage: { configured: boolean }; email: { configured: boolean; senderConfigured: boolean }; admin: { configured: boolean } };
 const fields = [
   ["hero.title", "Hero başlığı", "text"], ["hero.subtitle", "Hero açıklaması", "textarea"], ["hero.image", "Hero görsel URL", "image"],
   ["story.title", "3D bölüm başlığı", "text"], ["story.body", "3D bölüm açıklaması", "textarea"], ["products.title", "Koleksiyon başlığı", "text"],
@@ -28,25 +29,28 @@ export function AdminConsole({ userName }: { userName: string }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [content, setContent] = useState<ContentRow[]>([]);
   const [media, setMedia] = useState<MediaRow[]>([]);
+  const [system, setSystem] = useState<SystemStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState("");
   const [locale, setLocale] = useState<"tr" | "en">("tr");
   const [notice, setNotice] = useState("");
   async function load() {
     setLoading(true);
-    const [orderResponse, contentResponse, mediaResponse] = await Promise.all([fetch("/api/admin/orders"), fetch("/api/admin/content"), fetch("/api/admin/media")]);
+    const [orderResponse, contentResponse, mediaResponse, systemResponse] = await Promise.all([fetch("/api/admin/orders"), fetch("/api/admin/content"), fetch("/api/admin/media"), fetch("/api/admin/system")]);
     if (orderResponse.ok) setOrders(((await orderResponse.json()) as { orders: Order[] }).orders);
     if (contentResponse.ok) setContent(((await contentResponse.json()) as { content: ContentRow[] }).content);
     if (mediaResponse.ok) setMedia(((await mediaResponse.json()) as { media: MediaRow[] }).media);
+    if (systemResponse.ok) setSystem((await systemResponse.json()) as SystemStatus);
     setLoading(false);
   }
   useEffect(() => {
     let cancelled = false;
-    void Promise.all([fetch("/api/admin/orders"), fetch("/api/admin/content"), fetch("/api/admin/media")]).then(async ([orderResponse, contentResponse, mediaResponse]) => {
+    void Promise.all([fetch("/api/admin/orders"), fetch("/api/admin/content"), fetch("/api/admin/media"), fetch("/api/admin/system")]).then(async ([orderResponse, contentResponse, mediaResponse, systemResponse]) => {
       if (cancelled) return;
       if (orderResponse.ok) setOrders(((await orderResponse.json()) as { orders: Order[] }).orders);
       if (contentResponse.ok) setContent(((await contentResponse.json()) as { content: ContentRow[] }).content);
       if (mediaResponse.ok) setMedia(((await mediaResponse.json()) as { media: MediaRow[] }).media);
+      if (systemResponse.ok) setSystem((await systemResponse.json()) as SystemStatus);
       setLoading(false);
     });
     return () => { cancelled = true; };
@@ -76,7 +80,7 @@ export function AdminConsole({ userName }: { userName: string }) {
   return <div className="admin-shell">
     <aside className="admin-sidebar"><div className="brand admin-brand"><span className="brand-mark">WU</span><span className="brand-word">WOODEN<span>UNIVERSE</span></span></div><nav><button onClick={() => setTab("dashboard")} className={tab === "dashboard" ? "active" : ""}><LayoutDashboard />Genel Bakış</button><button onClick={() => setTab("orders")} className={tab === "orders" ? "active" : ""}><Package />Siparişler <em>{newOrders}</em></button><button onClick={() => setTab("catalog")} className={tab === "catalog" ? "active" : ""}><PackageOpen />Katalog</button><button onClick={() => setTab("content")} className={tab === "content" ? "active" : ""}><Languages />İçerik ve Çeviri</button><button onClick={() => setTab("media")} className={tab === "media" ? "active" : ""}><ImagePlus />Medya</button><a href="/tr" target="_blank"><Settings2 />Siteyi görüntüle</a><form action="/api/admin/logout" method="post"><button type="submit">Çıkış yap</button></form></nav><small>{userName}</small></aside>
     <main className="admin-main"><header><div><p className="eyebrow">WOODENUNIVERSE STUDIO</p><h1>{tab === "dashboard" ? "Genel Bakış" : tab === "orders" ? "Sipariş Yönetimi" : tab === "catalog" ? "Katalog Yönetimi" : tab === "content" ? "İçerik ve Çeviri" : "Medya Kütüphanesi"}</h1></div>{loading && <LoaderCircle className="spin" />}</header>{notice && <div className="admin-notice">{notice}</div>}
-      {tab === "dashboard" && <><div className="stat-grid"><Stat label="Toplam talep" value={orders.length} /><Stat label="Yeni talep" value={newOrders} /><Stat label="Üretimde" value={production} /><Stat label="Tamamlanan" value={orders.filter((item) => item.status === "delivered").length} /></div><section className="admin-card"><h2>Son talepler</h2><OrderTable orders={orders.slice(0, 6)} saving={saving} updateOrder={updateOrder} /></section></>}
+      {tab === "dashboard" && <><div className="stat-grid"><Stat label="Toplam talep" value={orders.length} /><Stat label="Yeni talep" value={newOrders} /><Stat label="Üretimde" value={production} /><Stat label="Tamamlanan" value={orders.filter((item) => item.status === "delivered").length} /></div><SystemPanel system={system} /><section className="admin-card"><h2>Son talepler</h2><OrderTable orders={orders.slice(0, 6)} saving={saving} updateOrder={updateOrder} /></section></>}
       {tab === "orders" && <section className="admin-card"><div className="card-heading"><div><h2>Tüm sipariş talepleri</h2><p>Durum değişiklikleri müşterinin takip ekranına işlenir.</p></div></div><OrderTable orders={orders} saving={saving} updateOrder={updateOrder} /></section>}
       {tab === "catalog" && <CatalogManager />}
       {tab === "content" && <section className="admin-card"><div className="card-heading"><div><h2>Sayfa içeriği</h2><p>Boş bırakılan alanlar sitenin varsayılan metnini kullanır. Değişiklikler sayfa yenilendiğinde görünür.</p></div><div className="locale-tabs"><button className={locale === "tr" ? "active" : ""} onClick={() => setLocale("tr")}>TR</button><button className={locale === "en" ? "active" : ""} onClick={() => setLocale("en")}>EN</button></div></div><div className="content-editor">{fields.map(([key, label, type]) => { const row = content.find((item) => item.key === key && item.locale === locale); return <ContentField key={`${locale}:${key}:${row?.value ?? "default"}`} fieldKey={key} label={label} type={type} initial={row?.value ?? ""} saving={saving === `${locale}:${key}`} onSave={saveContent} />; })}</div></section>}
@@ -86,6 +90,15 @@ export function AdminConsole({ userName }: { userName: string }) {
 }
 
 function Stat({ label, value }: { label: string; value: number }) { return <div className="stat-card"><small>{label}</small><strong>{String(value).padStart(2, "0")}</strong></div>; }
+function SystemPanel({ system }: { system: SystemStatus | null }) {
+  const items = [
+    { label: "Neon veritabanı", ok: Boolean(system?.database.ok), note: system?.database.ok ? `${system.database.counts?.orders ?? 0} sipariş · ${system.database.counts?.media ?? 0} medya` : system?.database.configured ? "Bağlantı veya tablolar kontrol edilmeli" : "Bağlı değil" },
+    { label: "Vercel Blob", ok: Boolean(system?.storage.configured), note: system?.storage.configured ? "Görsel yüklemeye hazır" : "Token eksik" },
+    { label: "E-posta", ok: Boolean(system?.email.configured), note: system?.email.configured ? (system.email.senderConfigured ? "Özel gönderici hazır" : "Resend test göndericisi") : "Resend veya alıcı eksik" },
+    { label: "Yönetici güvenliği", ok: Boolean(system?.admin.configured), note: system?.admin.configured ? "Oturum yapılandırıldı" : "Ayar eksik" },
+  ];
+  return <section className="admin-card system-panel"><div className="card-heading"><div><h2>Sistem durumu</h2><p>Gizli değerler gösterilmeden üretim bağlantıları kontrol edilir.</p></div></div><div className="system-grid">{items.map((item) => <div key={item.label}><i className={item.ok ? "ok" : "warn"} /><span><strong>{item.label}</strong><small>{item.note}</small></span></div>)}</div></section>;
+}
 function OrderTable({ orders, saving, updateOrder }: { orders: Order[]; saving: string; updateOrder: (order: Order, update: OrderUpdate) => void }) {
   const [expanded, setExpanded] = useState("");
   if (!orders.length) return <div className="empty-state">Henüz sipariş talebi bulunmuyor.</div>;

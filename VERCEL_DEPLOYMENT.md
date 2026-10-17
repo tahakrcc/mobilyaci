@@ -47,8 +47,11 @@ Resend kullanıyorsanız şu değişkenleri ekleyin:
 - `RESEND_API_KEY`
 - `ORDER_NOTIFICATION_EMAIL`
 - `ORDER_FROM_EMAIL` (ör. `WoodenUniverse <orders@alanadiniz.com>`)
+- `NEXT_PUBLIC_SITE_URL` (ör. `https://woodenuniverse.vercel.app`)
 
 Alan adı Resend'de doğrulanana kadar test gönderimleri için sağlayıcının izin verdiği test gönderen adresini kullanın.
+
+Yeni siparişte yöneticiye bildirim ve müşteriye takip bağlantılı onay e-postası gönderilir. Yönetici sipariş durumunu değiştirdiğinde müşteriye yeni durum, tahmini teslim tarihi ve varsa not iletilir.
 
 ## 6. Yayınlayın
 
@@ -59,5 +62,6 @@ Değişkenleri ve Storage bağlantılarını ekledikten sonra Vercel'de **Redepl
 3. `/tr/track` üzerinden sipariş takibi
 4. `/admin/login` üzerinden yönetici girişi
 5. Admin panelinde metin düzenleme, sipariş durumu değiştirme ve görsel yükleme
+6. Admin ana ekranındaki **Sistem durumu** bölümünde Neon, Blob, e-posta ve yönetici yapılandırmasını kontrol etme
 
 Not: Eski Cloudflare D1/R2 verileri otomatik taşınmaz. Mevcut üretim verileri varsa ayrıca PostgreSQL/Blob taşıma işlemi gerekir.
