@@ -15,6 +15,9 @@ const fields = [
   ["contact.title", "İletişim başlığı", "text"], ["contact.body", "İletişim açıklaması", "textarea"],
   ["projects.title", "Projeler başlığı", "text"], ["projects.body", "Projeler açıklaması", "textarea"],
   ["woods.title", "Ağaçlar başlığı", "text"], ["woods.body", "Ağaçlar açıklaması", "textarea"],
+  ["furniture.title", "Mobilya başlığı", "text"], ["furniture.body", "Mobilya açıklaması", "textarea"],
+  ["chairs.title", "Sandalyeler başlığı", "text"], ["chairs.body", "Sandalyeler açıklaması", "textarea"], ["chairs.image", "Sandalyeler kapak görseli", "image"],
+  ["sets.title", "Setler başlığı", "text"], ["sets.body", "Setler açıklaması", "textarea"], ["sets.image", "Setler kapak görseli", "image"],
 ] as const;
 
 export function AdminConsole({ userName }: { userName: string }) {
