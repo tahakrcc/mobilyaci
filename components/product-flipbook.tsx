@@ -71,6 +71,7 @@ export function ProductFlipbook({ locale, products }: { locale: Locale; products
   return (
     <section className="flipbook-section" id="projects">
       <div className="flipbook-heading blur-reveal">
+        <span className="section-number">03 / 05</span>
         <p className="eyebrow">{tr ? "SEÇİLMİŞ PARÇALAR" : "SELECTED PIECES"}</p>
         <h2>{tr ? "Her sayfa, başka bir karakter." : "A different character on every page."}</h2>
       </div>
