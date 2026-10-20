@@ -9,6 +9,15 @@ export type CatalogMap = { products: Product[]; chairs: ChairModel[]; sets: SetM
 
 const defaults: CatalogMap = { products, chairs: chairModels, sets: setModels };
 
+function normalizeLegacySets(items: SetModel[]) {
+  const curatedById = new Map(setModels.map((item) => [item.id, item]));
+  return items.map((item) => {
+    const curated = curatedById.get(item.id);
+    if (!curated || !/^\/images\/catalog\/sets\/page-\d+\.webp$/.test(item.image)) return item;
+    return { ...item, image: curated.image, imagePosition: curated.imagePosition, mobileImagePosition: curated.mobileImagePosition };
+  });
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -31,6 +40,7 @@ export async function getCatalog<K extends CatalogKind>(kind: K, includeInactive
   } catch {
     // The curated defaults keep public pages available during database outages.
   }
+  if (kind === "sets") items = normalizeLegacySets(items as SetModel[]) as CatalogMap[K];
   if (includeInactive) return items as CatalogMap[K];
   const visible = items.filter((item) => item.active !== false);
   return (visible.length ? visible : defaults[kind].filter((item) => item.active !== false)) as CatalogMap[K];

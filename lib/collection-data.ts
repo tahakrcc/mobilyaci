@@ -82,7 +82,9 @@ export const setModels: SetModel[] = [
   ...compactSets.map((name, index) => ({
     id: `${name.toLowerCase()}-cafe-set`, name: `${name} Set`, kind: { tr: "Kafe ve restoran seti", en: "Cafe and restaurant set" },
     sizes: index < 9 ? "Ø60 / Ø70 / Ø80 cm" : "60×60 / 70×70 / 80×80 cm",
-    image: `/images/catalog/sets/page-${String(27 + Math.floor(index / 2)).padStart(2, "0")}.webp`,
+    image: `/images/catalog/sets/page-${String(index === 0 ? 27 : 28 + Math.floor((index - 1) / 2)).padStart(2, "0")}.webp`,
+    imagePosition: index === 0 ? "center" : index % 2 === 1 ? "center 20%" : "center 80%",
+    mobileImagePosition: index === 0 ? "center" : index % 2 === 1 ? "center 20%" : "center 80%",
     capacity: { tr: "2–4 kişilik", en: "Seats 2–4" },
   })),
   ...largeSets.map((name, index) => ({

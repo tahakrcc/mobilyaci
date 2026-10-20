@@ -707,9 +707,14 @@ html, body, .public-site { max-width: 100%; overflow-x: clip; }
 .set-catalog-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; padding: 1px; background: var(--wu-line); }
 .set-card { min-width: 0; overflow: hidden; background: #0b0b08; }
 .set-card a { display: grid; grid-template-columns: 1.08fr .92fr; min-height: 440px; }
-.set-card img { width: 100%; height: 100%; object-fit: cover; object-position: top center; filter: saturate(.65) brightness(.76); transition: .8s; }
-.set-card:hover img { transform: scale(1.02); filter: saturate(.8) brightness(.88); }
-.set-card > a > div { display: flex; flex-direction: column; justify-content: center; padding: 30px; }
+.set-card-image { min-width: 0; min-height: 440px; overflow: hidden; background: #d8d0c3; }
+.set-card-image img { width: 100%; height: 100%; object-fit: cover; object-position: top center; filter: saturate(.65) brightness(.76); transition: transform .8s, filter .8s; }
+.set-card-image.crop-top img { transform: scale(1.65); transform-origin: center top; }
+.set-card-image.crop-bottom img { transform: scale(1.65); transform-origin: center bottom; }
+.set-card:hover .set-card-image:not(.crop-top):not(.crop-bottom) img { transform: scale(1.02); }
+.set-card:hover .set-card-image.crop-top img, .set-card:hover .set-card-image.crop-bottom img { transform: scale(1.68); }
+.set-card:hover img { filter: saturate(.8) brightness(.88); }
+.set-card > a > .set-card-copy { display: flex; flex-direction: column; justify-content: center; padding: 30px; }
 .set-card div > span { margin-bottom: 28px; color: rgba(244,236,217,.34); font-size: 8px; letter-spacing: .2em; }
 .set-card h2 { margin: 12px 0; font: 400 clamp(34px, 3.5vw, 54px)/.94 Georgia, serif; }
 .set-card p { margin: 0 0 35px; color: var(--wu-smoke); font-size: 12px; line-height: 1.6; }
@@ -739,9 +744,9 @@ html, body, .public-site { max-width: 100%; overflow-x: clip; }
   .collection-manifesto h2, .category-statement h2 { font-size: 48px; }
   .model-card-copy { padding: 24px 20px 30px; }
   .model-card-copy p { min-height: 0; }
-  .set-card a { grid-template-columns: 1fr; }
-  .set-card img { min-height: 420px; }
-  .set-card > a > div { padding: 28px 20px 34px; }
+  .set-card a { grid-template-columns: 1fr; grid-template-rows: 420px auto; min-height: 0; }
+  .set-card-image { min-height: 0; height: 420px; }
+  .set-card > a > .set-card-copy { padding: 28px 20px 34px; }
   .catalog-spread { grid-template-columns: 1fr; margin: 0 20px 75px; }
   .catalog-spread > div { padding: 28px 20px; }
 }

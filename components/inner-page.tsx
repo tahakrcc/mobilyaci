@@ -9,9 +9,9 @@ export function InnerShell({ locale, children }: { locale: Locale; children: Rea
   return <main className="public-site inner-site"><ScrollRevealController /><SiteHeader locale={locale} />{children}<SiteFooter locale={locale} /></main>;
 }
 
-export function InnerHero({ locale, eyebrow, title, lead, image, index = "WU / 01" }: { locale: Locale; eyebrow: string; title: string; lead: string; image?: string; index?: string }) {
+export function InnerHero({ locale, eyebrow, title, lead, image, imagePosition, mobileImagePosition, index = "WU / 01" }: { locale: Locale; eyebrow: string; title: string; lead: string; image?: string; imagePosition?: string; mobileImagePosition?: string; index?: string }) {
   return <header className={`inner-hero ${image ? "has-image" : ""}`}>
-    {image && <SiteImage src={image} alt="" />}
+    {image && <SiteImage src={image} position={imagePosition} mobilePosition={mobileImagePosition} alt="" />}
     <div className="inner-hero-shade" />
     <div className="inner-hero-index">{index}</div>
     <div className="inner-hero-copy"><p className="eyebrow">{eyebrow}</p><RevealHeading3D>{title}</RevealHeading3D><p>{lead}</p></div>
