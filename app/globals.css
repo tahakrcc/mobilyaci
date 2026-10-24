@@ -663,7 +663,7 @@ html, body, .public-site { max-width: 100%; overflow-x: clip; }
 /* Wooden Universe furniture, seating and contract collections */
 .home-priority, .priority-collections, .furniture-category-list, .catalog-realized { padding: 120px 6vw; color: var(--wu-ivory); background: var(--wu-black); }
 .home-priority, .priority-collections { border-top: 1px solid var(--wu-line); border-bottom: 1px solid var(--wu-line); }
-.priority-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--wu-line); }
+.priority-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--wu-line); }
 .priority-card { position: relative; min-height: 620px; overflow: hidden; background: #0b0b08; isolation: isolate; }
 .priority-card > img { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(.5) contrast(1.08) brightness(.52); transition: transform 1s cubic-bezier(.2,.75,.2,1), filter .7s ease; }
 .priority-card::after { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(0deg, rgba(3,3,2,.96), rgba(3,3,2,.1) 72%); }
@@ -727,14 +727,12 @@ html, body, .public-site { max-width: 100%; overflow-x: clip; }
 
 @media (max-width: 1050px) {
   .priority-grid, .model-catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .priority-card:first-child { grid-column: 1 / -1; }
   .set-catalog-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 700px) {
   .home-priority, .priority-collections, .furniture-category-list, .catalog-realized { padding: 78px 20px; }
   .priority-grid, .model-catalog-grid { grid-template-columns: 1fr; }
-  .priority-card:first-child { grid-column: auto; }
   .priority-card { min-height: 510px; }
   .priority-card > div { padding: 28px 22px; }
   .furniture-category-row { grid-template-columns: 35px 1fr; gap: 12px; padding: 24px 0; }
