@@ -137,6 +137,7 @@ export function TreeExperience({ locale }: { locale: Locale }) {
   const pointer = useRef<{ id: number; startX: number; startY: number; lastX: number; dragging: boolean } | null>(null);
   const [dragging, setDragging] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [visible, setVisible] = useState(false);
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -176,6 +177,17 @@ export function TreeExperience({ locale }: { locale: Locale }) {
     window.addEventListener("scroll", update, { passive: true });
     return () => window.removeEventListener("scroll", update);
   }, []);
+  useEffect(() => {
+    const target = section.current;
+    if (!target) return;
+    if (!("IntersectionObserver" in window)) {
+      const timer = setTimeout(() => setVisible(true), 0);
+      return () => clearTimeout(timer);
+    }
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { rootMargin: "100px 0px" });
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
   const tree = trees[0];
   const stagesTr = ["Yaşayan gövde", "Kabuk ve öz", "Yıllık halkalar", "Doğal damar", "Plakadan tasarıma"];
   const stagesEn = ["Living trunk", "Bark and core", "Growth rings", "Natural grain", "Slab to design"];
@@ -199,7 +211,7 @@ export function TreeExperience({ locale }: { locale: Locale }) {
             rotationTarget.current += event.key === "ArrowLeft" ? -0.2 : 0.2;
           }}
         >
-          <Canvas camera={{ position: [0, 0, 7.2], fov: 42 }} dpr={[1, 1.65]} shadows>
+          <Canvas camera={{ position: [0, 0, 7.2], fov: 42 }} dpr={[1, 1.65]} frameloop={visible ? "always" : "never"} shadows>
             <color attach="background" args={["#0b0b09"]} />
             <ambientLight intensity={0.34} />
             <directionalLight position={[5, 7, 5]} intensity={2.65} color="#ffd7a0" castShadow />

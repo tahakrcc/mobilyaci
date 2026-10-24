@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEffect, useRef, useState } from "react";
 import type { Locale } from "@/lib/catalog";
 
 function TreeLoading() {
@@ -29,5 +30,24 @@ const TreeExperience = dynamic(() => import("@/components/tree-experience").then
 });
 
 export function TreeExperienceLoader({ locale }: { locale: Locale }) {
-  return <TreeExperience locale={locale} />;
+  const placeholder = useRef<HTMLDivElement>(null);
+  const [nearby, setNearby] = useState(false);
+
+  useEffect(() => {
+    const target = placeholder.current;
+    if (!target) return;
+    if (!("IntersectionObserver" in window)) {
+      const timer = setTimeout(() => setNearby(true), 0);
+      return () => clearTimeout(timer);
+    }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      setNearby(true);
+      observer.disconnect();
+    }, { rootMargin: "800px 0px" });
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
+
+  return <div ref={placeholder}>{nearby ? <TreeExperience locale={locale} /> : <TreeLoading />}</div>;
 }
