@@ -10,8 +10,8 @@ import { ProductFlipbook } from "@/components/product-flipbook";
 import { SiteFooter } from "@/components/site-footer";
 import { copy, isLocale } from "@/lib/catalog";
 import { resolveContent } from "@/lib/content-store";
-import { furnitureCategories, localized } from "@/lib/collection-data";
-import { getCatalog } from "@/lib/catalog-store";
+import { localized } from "@/lib/collection-data";
+import { getCatalog, getFurnitureCategories, getSharedAssetUrl } from "@/lib/catalog-store";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const locale = rawLocale;
   const tr = locale === "tr";
   const t = copy[locale];
-  const products = await getCatalog("products");
+  const [products, furnitureCategories, treeModelUrl] = await Promise.all([
+    getCatalog("products"),
+    getFurnitureCategories(),
+    getSharedAssetUrl("asset.wood-journey-model", "/models/wood-journey.glb"),
+  ]);
   const content = await resolveContent(locale, {
     "hero.title": t.heroTitle, "hero.subtitle": t.heroSubtitle, "hero.image": "/images/real/black-epoxy-dining.jpeg",
     "story.title": t.storyTitle, "story.body": t.storyBody, "products.title": t.productsTitle,
@@ -44,7 +48,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <div id="manifesto"><TextReveal3D locale={locale} /></div>
     <section className="home-priority"><div className="section-heading blur-reveal"><div><p className="eyebrow">{tr ? "ÖNCELİKLİ MOBİLYALAR" : "PRIORITY FURNITURE"}</p><RevealHeading3D>{tr ? "Mekânın karakterini kuran dört parça." : "Four pieces that define the space."}</RevealHeading3D></div><p>{tr ? "TV ünitesi, konsol, bar ve kitaplık; ölçünüz, kullanımınız ve seçtiğiniz malzemeyle yeniden çizilir." : "TV units, consoles, bars and bookcases redrawn around your dimensions, use and material."}</p></div><div className="priority-grid">{furnitureCategories.filter((item) => item.priority).map((item, index) => <PriorityCategoryCard href={`/${locale}/products/category/${item.id}`} title={localized(item.title, locale)} eyebrow={localized(item.eyebrow, locale)} description={localized(item.description, locale)} images={item.gallery ?? [item.image]} number={`0${index + 1}`} order={index} key={item.id} />)}</div></section>
     <section className="story-intro blur-reveal"><div className="story-index">02 / 05</div><div><p className="eyebrow">{t.storyEyebrow}</p><RevealHeading3D>{content["story.title"]}</RevealHeading3D></div><div className="story-note"><p>{content["story.body"]}</p><span>{tr ? "Kaydırarak ağacın katmanlarını ayırın" : "Scroll to separate the layers of the tree"}<ArrowRight /></span></div></section>
-    <TreeExperienceLoader locale={locale} />
+    <TreeExperienceLoader locale={locale} modelUrl={treeModelUrl} />
     <RibbonType locale={locale} />
     <ProductFlipbook locale={locale} products={products} />
     <section className="process" id="process"><div className="section-number">04 / 05</div><div className="section-heading light blur-reveal"><div><p className="eyebrow">{tr ? "ATÖLYE SÜRECİ" : "WORKSHOP PROCESS"}</p><RevealHeading3D>{content["process.title"]}</RevealHeading3D></div><p>{tr ? "Karar verdiğiniz andan teslimata kadar her adımı görünür kılan sade bir süreç." : "A clear process that keeps every stage visible, from first decision to delivery."}</p></div><ol className="process-flow">

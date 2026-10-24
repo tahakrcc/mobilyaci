@@ -29,7 +29,7 @@ const TreeExperience = dynamic(() => import("@/components/tree-experience").then
   loading: () => <TreeLoading />,
 });
 
-export function TreeExperienceLoader({ locale }: { locale: Locale }) {
+export function TreeExperienceLoader({ locale, modelUrl }: { locale: Locale; modelUrl: string }) {
   const placeholder = useRef<HTMLDivElement>(null);
   const [nearby, setNearby] = useState(false);
 
@@ -49,5 +49,5 @@ export function TreeExperienceLoader({ locale }: { locale: Locale }) {
     return () => observer.disconnect();
   }, []);
 
-  return <div ref={placeholder}>{nearby ? <TreeExperience locale={locale} /> : <TreeLoading />}</div>;
+  return <div ref={placeholder}>{nearby ? <TreeExperience locale={locale} modelUrl={modelUrl} /> : <TreeLoading />}</div>;
 }

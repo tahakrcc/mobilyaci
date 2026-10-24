@@ -10,10 +10,10 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 import type { Locale } from "@/lib/catalog";
 import { trees } from "@/lib/catalog";
 
-function TreeModel({ progress, color, rotationTarget }: { progress: number; color: string; rotationTarget: { current: number } }) {
+function TreeModel({ progress, color, rotationTarget, modelUrl }: { progress: number; color: string; rotationTarget: { current: number }; modelUrl: string }) {
   const stageRoot = useRef<THREE.Group>(null);
   const rotation = useRef(0);
-  const { scene } = useGLTF("/models/wood-journey.glb");
+  const { scene } = useGLTF(modelUrl);
   const { model, trunk, crossSection, slab } = useMemo(() => {
     const cloned = scene.clone(true);
     cloned.traverse((child) => {
@@ -129,9 +129,7 @@ function TreeModel({ progress, color, rotationTarget }: { progress: number; colo
   );
 }
 
-useGLTF.preload("/models/wood-journey.glb");
-
-export function TreeExperience({ locale }: { locale: Locale }) {
+export function TreeExperience({ locale, modelUrl }: { locale: Locale; modelUrl: string }) {
   const section = useRef<HTMLElement>(null);
   const rotationTarget = useRef(0);
   const pointer = useRef<{ id: number; startX: number; startY: number; lastX: number; dragging: boolean } | null>(null);
@@ -217,7 +215,7 @@ export function TreeExperience({ locale }: { locale: Locale }) {
             <directionalLight position={[5, 7, 5]} intensity={2.65} color="#ffd7a0" castShadow />
             <pointLight position={[-4, 1, 3]} intensity={1.4} color="#7f5227" />
             <Suspense fallback={null}>
-              <TreeModel progress={progress} color={tree.tone} rotationTarget={rotationTarget} />
+              <TreeModel progress={progress} color={tree.tone} rotationTarget={rotationTarget} modelUrl={modelUrl} />
             </Suspense>
             <ContactShadows position={[0, -1.72, 0]} opacity={0.34} scale={8} blur={2.8} far={4} color="#000000" />
             <Environment preset="warehouse" environmentIntensity={0.38} />

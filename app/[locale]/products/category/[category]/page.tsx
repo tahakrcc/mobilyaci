@@ -3,13 +3,16 @@ import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import { InnerHero, InnerShell, InquiryBand } from "@/components/inner-page";
 import { RevealHeading3D } from "@/components/editorial-motion";
-import { furnitureCategories, localized } from "@/lib/collection-data";
+import { localized } from "@/lib/collection-data";
 import { isLocale } from "@/lib/catalog";
-import { getCatalog } from "@/lib/catalog-store";
+import { getCatalog, getFurnitureCategories } from "@/lib/catalog-store";
+
+export const dynamic = "force-dynamic";
 
 export default async function FurnitureCategoryPage({ params }: { params: Promise<{ locale: string; category: string }> }) {
   const { locale: rawLocale, category } = await params;
   if (!isLocale(rawLocale)) notFound();
+  const furnitureCategories = await getFurnitureCategories();
   const item = furnitureCategories.find((entry) => entry.id === category);
   if (!item) notFound();
   const locale = rawLocale;

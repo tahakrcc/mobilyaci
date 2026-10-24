@@ -5,17 +5,19 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { RevealHeading3D, RibbonType, ScrollRevealController } from "@/components/editorial-motion";
-import { furnitureCategories, localized } from "@/lib/collection-data";
+import { localized } from "@/lib/collection-data";
 import { isLocale } from "@/lib/catalog";
 import { resolveContent } from "@/lib/content-store";
-import { getCatalog } from "@/lib/catalog-store";
+import { getCatalog, getFurnitureCategories } from "@/lib/catalog-store";
+
+export const dynamic = "force-dynamic";
 
 export default async function ProductsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: rawLocale } = await params;
   if (!isLocale(rawLocale)) notFound();
   const locale = rawLocale;
   const tr = locale === "tr";
-  const products = await getCatalog("products");
+  const [products, furnitureCategories] = await Promise.all([getCatalog("products"), getFurnitureCategories()]);
   const content = await resolveContent(locale, {
     "furniture.title": tr ? "Mekâna göre çizilen, malzemeye göre biçimlenen." : "Drawn for the space, shaped by the material.",
     "furniture.body": tr ? "TV ünitesinden tek parça masaya; her çalışma ölçü, kullanım ve gerçek malzemeye göre yeniden tasarlanır." : "From TV units to one-of-one tables, every piece is redrawn around dimensions, use and real material.",
