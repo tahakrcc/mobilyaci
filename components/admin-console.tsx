@@ -3,7 +3,7 @@
 import { SiteImage } from "@/components/site-image";
 
 import { ChevronDown, Copy, ImagePlus, LayoutDashboard, LoaderCircle, Package, PackageOpen, Save, Settings2, Trash2, Upload, Languages } from "lucide-react";
-import { FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { orderStatuses } from "@/lib/catalog";
 import { CatalogManager } from "@/components/catalog-manager";
 
@@ -36,6 +36,8 @@ export function AdminConsole({ userName }: { userName: string }) {
   const [saving, setSaving] = useState("");
   const [locale, setLocale] = useState<"tr" | "en">("tr");
   const [notice, setNotice] = useState("");
+  const [selectedMedia, setSelectedMedia] = useState<{ name: string; previewUrl: string } | null>(null);
+  const [lastUploaded, setLastUploaded] = useState<MediaRow | null>(null);
   async function load() {
     setLoading(true);
     const [orderResponse, contentResponse, mediaResponse, systemResponse] = await Promise.all([fetch("/api/admin/orders"), fetch("/api/admin/content"), fetch("/api/admin/media"), fetch("/api/admin/system")]);
@@ -73,9 +75,22 @@ export function AdminConsole({ userName }: { userName: string }) {
     event.preventDefault(); setSaving("media"); setNotice("");
     const form = event.currentTarget;
     const response = await fetch("/api/admin/media", { method: "POST", body: new FormData(form) });
-    const body = (await response.json()) as { url?: string };
-    if (response.ok) { setNotice(`Görsel yüklendi: ${body.url}`); form.reset(); await load(); } else setNotice("Görsel yüklenemedi.");
+    const body = (await response.json()) as MediaRow & { error?: string };
+    if (response.ok) {
+      setLastUploaded(body);
+      setMedia((current) => [body, ...current.filter((item) => item.id !== body.id)]);
+      setNotice("Görsel yüklendi ve medya kütüphanesine eklendi.");
+      form.reset();
+      if (selectedMedia) URL.revokeObjectURL(selectedMedia.previewUrl);
+      setSelectedMedia(null);
+    } else setNotice(body.error === "invalid-file" ? "Dosya türü veya boyutu uygun değil." : "Görsel yüklenemedi.");
     setSaving("");
+  }
+  function chooseMedia(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (selectedMedia) URL.revokeObjectURL(selectedMedia.previewUrl);
+    setLastUploaded(null);
+    setSelectedMedia(file ? { name: file.name, previewUrl: URL.createObjectURL(file) } : null);
   }
   async function updateMedia(item: MediaRow, altTr: string, altEn: string) {
     setSaving(item.id); setNotice("");
@@ -108,7 +123,7 @@ export function AdminConsole({ userName }: { userName: string }) {
       {tab === "orders" && <section className="admin-card"><div className="card-heading"><div><h2>Tüm sipariş talepleri</h2><p>Durum değişiklikleri müşterinin takip ekranına işlenir.</p></div></div><OrderTable orders={orders} saving={saving} updateOrder={updateOrder} /></section>}
       {tab === "catalog" && <CatalogManager />}
       {tab === "content" && <section className="admin-card"><div className="card-heading"><div><h2>Sayfa içeriği</h2><p>Boş bırakılan alanlar sitenin varsayılan metnini kullanır. Değişiklikler sayfa yenilendiğinde görünür.</p></div><div className="locale-tabs"><button className={locale === "tr" ? "active" : ""} onClick={() => setLocale("tr")}>TR</button><button className={locale === "en" ? "active" : ""} onClick={() => setLocale("en")}>EN</button></div></div><div className="content-editor">{fields.map(([key, label, type]) => { const row = content.find((item) => item.key === key && item.locale === locale); return <ContentField key={`${locale}:${key}:${row?.value ?? "default"}`} fieldKey={key} label={label} type={type} initial={row?.value ?? ""} saving={saving === `${locale}:${key}`} onSave={saveContent} />; })}</div></section>}
-      {tab === "media" && <section className="admin-card media-panel"><h2>Yeni görsel yükle</h2><p>Yüklenen görselin adresini katalogdaki kapak veya galeri alanlarına yapıştırabilirsiniz.</p><form onSubmit={upload}><label className="upload-zone"><Upload /><strong>Görsel seçin</strong><span>PNG, JPG, WebP veya AVIF · en fazla 4 MB</span><input name="file" type="file" accept="image/jpeg,image/png,image/webp,image/avif" required /></label><div className="field-grid"><label className="field"><span>Türkçe alternatif metin</span><input name="altTr" /></label><label className="field"><span>English alt text</span><input name="altEn" /></label></div><button className="button gold" disabled={saving === "media"}>{saving === "media" ? <LoaderCircle className="spin" /> : <Upload />}Yükle</button></form><div className="media-library"><div className="card-heading"><div><h2>Medya kütüphanesi</h2><p>{media.length} görsel · Metinleri düzenleyebilir, adresi kopyalayabilir veya kullanılmayan görseli silebilirsiniz.</p></div></div>{media.length ? <div className="media-grid">{media.map((item) => <MediaEditor key={item.id} item={item} saving={saving === item.id} onSave={updateMedia} onDelete={deleteMedia} onNotice={setNotice} />)}</div> : <div className="empty-state">Henüz yüklenmiş görsel bulunmuyor.</div>}</div></section>}
+      {tab === "media" && <section className="admin-card media-panel"><h2>Yeni görsel yükle</h2><p>Yüklenen görselin adresini katalogdaki kapak veya galeri alanlarına yapıştırabilirsiniz.</p><form onSubmit={upload}><label className={`upload-zone${selectedMedia ? " has-selection" : ""}`}>{selectedMedia ? <><SiteImage src={selectedMedia.previewUrl} alt="Seçilen görsel önizlemesi" unoptimized /><strong>Seçildi: {selectedMedia.name}</strong><span>Değiştirmek için alana tekrar tıklayın</span></> : <><Upload /><strong>Görsel seçin</strong><span>PNG, JPG, WebP veya AVIF · en fazla 4 MB</span></>}<input name="file" type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={chooseMedia} required /></label><div className="field-grid"><label className="field"><span>Türkçe alternatif metin</span><input name="altTr" /></label><label className="field"><span>English alt text</span><input name="altEn" /></label></div><button className="button gold" disabled={saving === "media"}>{saving === "media" ? <LoaderCircle className="spin" /> : <Upload />}Yükle</button></form>{lastUploaded && <div className="upload-result" role="status"><SiteImage src={lastUploaded.url} alt={lastUploaded.altTr || lastUploaded.filename} /><div><strong>Görsel başarıyla eklendi</strong><span>{lastUploaded.filename}</span><label><span>Görsel bağlantısı</span><input value={lastUploaded.url} readOnly onFocus={(event) => event.currentTarget.select()} /></label><button type="button" onClick={async () => { await navigator.clipboard.writeText(lastUploaded.url); setNotice("Görsel bağlantısı kopyalandı."); }}><Copy />Bağlantıyı kopyala</button></div></div>}<div className="media-library"><div className="card-heading"><div><h2>Medya kütüphanesi</h2><p>{media.length} görsel · Metinleri düzenleyebilir, adresi kopyalayabilir veya kullanılmayan görseli silebilirsiniz.</p></div></div>{media.length ? <div className="media-grid">{media.map((item) => <MediaEditor key={item.id} item={item} saving={saving === item.id} onSave={updateMedia} onDelete={deleteMedia} onNotice={setNotice} />)}</div> : <div className="empty-state">Henüz yüklenmiş görsel bulunmuyor.</div>}</div></section>}
     </main>
   </div>;
 }
@@ -116,7 +131,7 @@ export function AdminConsole({ userName }: { userName: string }) {
 function MediaEditor({ item, saving, onSave, onDelete, onNotice }: { item: MediaRow; saving: boolean; onSave: (item: MediaRow, altTr: string, altEn: string) => void; onDelete: (item: MediaRow) => void; onNotice: (message: string) => void }) {
   const [altTr, setAltTr] = useState(item.altTr);
   const [altEn, setAltEn] = useState(item.altEn);
-  return <article className="media-editor"><button className="media-preview" type="button" title="Görsel adresini kopyala" onClick={async () => { await navigator.clipboard.writeText(item.url); onNotice("Görsel adresi kopyalandı."); }}><SiteImage src={item.url} alt={altTr || item.filename} /><span><Copy size={14} />{item.filename}</span></button><label><span>Türkçe alternatif metin</span><input value={altTr} onChange={(event) => setAltTr(event.target.value)} /></label><label><span>English alt text</span><input value={altEn} onChange={(event) => setAltEn(event.target.value)} /></label><div className="media-actions"><button type="button" onClick={() => onSave(item, altTr, altEn)} disabled={saving}>{saving ? <LoaderCircle className="spin" /> : <Save />} Kaydet</button><button type="button" className="danger" onClick={() => onDelete(item)} disabled={saving}><Trash2 /> Sil</button></div></article>;
+  return <article className="media-editor"><button className="media-preview" type="button" title="Görsel adresini kopyala" onClick={async () => { await navigator.clipboard.writeText(item.url); onNotice("Görsel adresi kopyalandı."); }}><SiteImage src={item.url} alt={altTr || item.filename} /><span><Copy size={14} />{item.filename}</span></button><label className="media-url"><span>Görsel bağlantısı</span><input value={item.url} readOnly onFocus={(event) => event.currentTarget.select()} /></label><label><span>Türkçe alternatif metin</span><input value={altTr} onChange={(event) => setAltTr(event.target.value)} /></label><label><span>English alt text</span><input value={altEn} onChange={(event) => setAltEn(event.target.value)} /></label><div className="media-actions"><button type="button" onClick={() => onSave(item, altTr, altEn)} disabled={saving}>{saving ? <LoaderCircle className="spin" /> : <Save />} Kaydet</button><button type="button" className="danger" onClick={() => onDelete(item)} disabled={saving}><Trash2 /> Sil</button></div></article>;
 }
 
 function Stat({ label, value }: { label: string; value: number }) { return <div className="stat-card"><small>{label}</small><strong>{String(value).padStart(2, "0")}</strong></div>; }

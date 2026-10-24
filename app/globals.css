@@ -1108,8 +1108,19 @@ html, body, .public-site { max-width: 100%; overflow-x: clip; }
 .media-actions button { display:flex; align-items:center; gap:6px; padding:9px 11px; border:1px solid var(--wu-line); background:transparent; color:var(--wu-gold-light); cursor:pointer; }
 .media-actions button.danger { color:#e58d7e; margin-left:auto; }
 .media-actions svg { width:15px; }
+.upload-zone.has-selection { min-height:320px; padding:18px; }
+.upload-zone.has-selection img { width:min(100%,520px); max-height:230px; object-fit:contain; border:1px solid var(--wu-line); background:#050504; }
+.upload-zone.has-selection strong { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.upload-result { display:grid; grid-template-columns:minmax(150px,220px) minmax(0,1fr); gap:18px; align-items:center; margin-top:24px; padding:16px; border:1px solid rgba(118,197,138,.42); background:rgba(118,197,138,.07); }
+.upload-result > img { width:100%; aspect-ratio:4/3; object-fit:cover; }
+.upload-result > div { min-width:0; display:grid; gap:8px; }
+.upload-result strong,.upload-result span { display:block; }.upload-result strong { color:#a7ddb2; font:400 20px Georgia,serif; }.upload-result span { color:var(--wu-smoke); font-size:11px; }
+.upload-result label { display:grid; gap:6px; color:var(--wu-gold-light); font-size:9px; text-transform:uppercase; letter-spacing:.08em; }
+.upload-result input { width:100%; padding:10px; color:var(--wu-ivory); border:1px solid var(--wu-line); background:#050504; }
+.upload-result button { width:max-content; display:inline-flex; align-items:center; gap:7px; padding:9px 11px; color:var(--wu-gold-light); border:1px solid var(--wu-line); background:transparent; cursor:pointer; }.upload-result button svg { width:15px; }
+.media-url input { color:var(--wu-gold-light); font-size:10px; }
 img[style*="--image-position"] { object-position:var(--image-position); }
-@media (max-width:640px) { img[style*="--mobile-image-position"] { object-position:var(--mobile-image-position); } }
+@media (max-width:640px) { img[style*="--mobile-image-position"] { object-position:var(--mobile-image-position); } .upload-result { grid-template-columns:1fr; } }
 :where(a,button,input,select,textarea,[tabindex]):focus-visible { outline:3px solid var(--wu-gold-light,#e9c86c); outline-offset:3px; }
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
 
