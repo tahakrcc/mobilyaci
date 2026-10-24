@@ -1131,6 +1131,12 @@ img[style*="--image-position"] { object-position:var(--image-position); }
 }
 
 /* Persistent public navigation */
+.tree-canvas,
+.tree-canvas canvas { cursor: grab; touch-action: pan-y; }
+.tree-canvas.is-dragging,
+.tree-canvas.is-dragging canvas { cursor: grabbing; }
+.tree-canvas:focus-visible { outline: 2px solid #d2a35e; outline-offset: -2px; }
+
 .site-header {
   position: fixed;
   z-index: 100;
