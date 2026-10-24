@@ -1,4 +1,5 @@
 import { SiteImage } from "@/components/site-image";
+import { PriorityCategoryCard } from "@/components/priority-category-card";
 import { ArrowDown, ArrowRight, ArrowUpRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
@@ -41,7 +42,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </div>
     </section>
     <div id="manifesto"><TextReveal3D locale={locale} /></div>
-    <section className="home-priority"><div className="section-heading blur-reveal"><div><p className="eyebrow">{tr ? "ÖNCELİKLİ MOBİLYALAR" : "PRIORITY FURNITURE"}</p><RevealHeading3D>{tr ? "Mekânın karakterini kuran dört parça." : "Four pieces that define the space."}</RevealHeading3D></div><p>{tr ? "TV ünitesi, konsol, bar ve kitaplık; ölçünüz, kullanımınız ve seçtiğiniz malzemeyle yeniden çizilir." : "TV units, consoles, bars and bookcases redrawn around your dimensions, use and material."}</p></div><div className="priority-grid">{furnitureCategories.filter((item) => item.priority).map((item, index) => <a className="priority-card blur-reveal" href={`/${locale}/products/category/${item.id}`} key={item.id}><SiteImage src={item.image} alt={localized(item.title, locale)} /><span>0{index + 1}</span><div><small>{localized(item.eyebrow, locale)}</small><h3>{localized(item.title, locale)}</h3><p>{localized(item.description, locale)}</p><ArrowUpRight /></div></a>)}</div></section>
+    <section className="home-priority"><div className="section-heading blur-reveal"><div><p className="eyebrow">{tr ? "ÖNCELİKLİ MOBİLYALAR" : "PRIORITY FURNITURE"}</p><RevealHeading3D>{tr ? "Mekânın karakterini kuran dört parça." : "Four pieces that define the space."}</RevealHeading3D></div><p>{tr ? "TV ünitesi, konsol, bar ve kitaplık; ölçünüz, kullanımınız ve seçtiğiniz malzemeyle yeniden çizilir." : "TV units, consoles, bars and bookcases redrawn around your dimensions, use and material."}</p></div><div className="priority-grid">{furnitureCategories.filter((item) => item.priority).map((item, index) => <PriorityCategoryCard href={`/${locale}/products/category/${item.id}`} title={localized(item.title, locale)} eyebrow={localized(item.eyebrow, locale)} description={localized(item.description, locale)} images={item.gallery ?? [item.image]} number={`0${index + 1}`} order={index} key={item.id} />)}</div></section>
     <section className="story-intro blur-reveal"><div className="story-index">02 / 05</div><div><p className="eyebrow">{t.storyEyebrow}</p><RevealHeading3D>{content["story.title"]}</RevealHeading3D></div><div className="story-note"><p>{content["story.body"]}</p><span>{tr ? "Kaydırarak ağacın katmanlarını ayırın" : "Scroll to separate the layers of the tree"}<ArrowRight /></span></div></section>
     <TreeExperienceLoader locale={locale} />
     <RibbonType locale={locale} />

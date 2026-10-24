@@ -1,5 +1,6 @@
 import { SiteImage } from "@/components/site-image";
 import { ArrowUpRight } from "lucide-react";
+import { PriorityCategoryCard } from "@/components/priority-category-card";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -29,7 +30,7 @@ export default async function ProductsPage({ params }: { params: Promise<{ local
     </header>
     <section className="priority-collections">
       <div className="section-heading blur-reveal"><div><p className="eyebrow">{tr ? "ÖNCELİKLİ KOLEKSİYON" : "PRIORITY COLLECTION"}</p><h2>{tr ? "Yaşam alanının ana parçaları." : "The defining pieces of a space."}</h2></div><p>{tr ? "TV ünitesi, konsol ve kahve köşesi için mekân ölçüsüne dayalı özel üretim." : "Bespoke TV units, consoles and coffee corners based on the dimensions of the space."}</p></div>
-      <div className="priority-grid">{furnitureCategories.filter((item) => item.priority).map((item, index) => <a className="priority-card blur-reveal" href={`/${locale}/products/category/${item.id}`} key={item.id}><SiteImage src={item.image} alt={localized(item.title, locale)} /><span>0{index + 1}</span><div><small>{localized(item.eyebrow, locale)}</small><h3>{localized(item.title, locale)}</h3><p>{localized(item.description, locale)}</p><ArrowUpRight /></div></a>)}</div>
+      <div className="priority-grid">{furnitureCategories.filter((item) => item.priority).map((item, index) => <PriorityCategoryCard href={`/${locale}/products/category/${item.id}`} title={localized(item.title, locale)} eyebrow={localized(item.eyebrow, locale)} description={localized(item.description, locale)} images={item.gallery ?? [item.image]} number={`0${index + 1}`} order={index} key={item.id} />)}</div>
     </section>
     <section className="furniture-category-list">
       <p className="eyebrow blur-reveal">{tr ? "TÜM MOBİLYALAR" : "ALL FURNITURE"}</p>
