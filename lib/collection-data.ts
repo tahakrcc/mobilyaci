@@ -39,6 +39,33 @@ export type SetModel = {
   active?: boolean;
 };
 
+const blobBase = "https://gnrygw220itoriot.public.blob.vercel-storage.com";
+const blobImage = (name: string) => `${blobBase}/${name}`;
+
+const tableGallery = [
+  "epoksili-masa-turkuaz-nehir-01.webp",
+  "epoksili-masa-zeytin-koyu-recine-02.webp",
+  "epoksili-masa-yuvarlak-yesil-03.webp",
+  "epoksili-masa-siyah-burl-04.webp",
+  "epoksili-masa-mavi-ceviz-05.webp",
+  "epoksili-masa-siyah-burl-06.webp",
+  "epoksili-masa-dogal-kenar-07.webp",
+  "epoksisiz-kutuk-masa-dogal-kenar-01.webp",
+  "epoksisiz-kutuk-masa-masif-02.webp",
+  "epoksisiz-kutuk-masa-x-ayak-03.webp",
+  "epoksisiz-kutuk-masa-yemek-04.webp",
+].map(blobImage);
+
+const coffeeTableGallery = [
+  "orta-sehpa-zeytin-kok-01.webp",
+  "orta-sehpa-burl-yasam-alani-02.webp",
+  "orta-sehpa-yuvarlak-dilimler-03.webp",
+  "orta-sehpa-yuvarlak-tasli-04.webp",
+  "orta-sehpa-kok-siyah-epoksi-05.webp",
+].map(blobImage);
+
+const deskGallery = [blobImage("epoksisiz-kutuk-calisma-masasi-05.webp")];
+
 export const furnitureCategories: FurnitureCategory[] = [
   { id: "tv-units", title: { tr: "TV Üniteleri", en: "TV Units" }, eyebrow: { tr: "ÖNCELİKLİ KOLEKSİYON", en: "PRIORITY COLLECTION" }, description: { tr: "Masif ahşap, açık raf ve kapalı depolamayı mekâna göre birleştiren özel üretimler.", en: "Bespoke compositions combining solid wood, open shelving and closed storage." }, image: "/images/real/priority-tv-unit-01.jpeg", gallery: [
     "/images/real/priority-tv-unit-01.jpeg", "/images/real/priority-tv-unit-02.jpeg", "/images/real/priority-tv-unit-03.jpeg",
@@ -48,9 +75,9 @@ export const furnitureCategories: FurnitureCategory[] = [
     "/images/real/priority-console-01.jpeg", "/images/real/priority-console-02.jpeg", "/images/real/priority-console-03.jpeg", "/images/real/priority-console-04.jpeg",
   ], priority: true },
   { id: "coffee-corners", title: { tr: "Kahve Köşeleri", en: "Coffee Corners" }, eyebrow: { tr: "ÖZEL ÜRETİM", en: "BESPOKE PRODUCTION" }, description: { tr: "Servis, sergileme ve depolamayı tek kompozisyonda çözen mekâna özel üniteler.", en: "Tailored units bringing service, display and storage into one composition." }, image: "/images/real/solid-console.jpeg" },
-  { id: "tables", title: { tr: "Masalar", en: "Tables" }, eyebrow: { tr: "TEK PARÇA ÜRETİM", en: "ONE OF ONE" }, description: { tr: "Epoksili veya düz kütük; yemek, toplantı ve çalışma alanları için özel ölçü masalar.", en: "Custom-size resin or solid-slab tables for dining, meetings and work." }, image: "/images/real/black-epoxy-dining.jpeg" },
-  { id: "coffee-tables", title: { tr: "Sehpalar", en: "Coffee Tables" }, eyebrow: { tr: "YAŞAM ALANI", en: "LIVING SPACE" }, description: { tr: "Doğal kenarı koruyan, renkli veya füme epoksiyle tamamlanan orta ve yan sehpalar.", en: "Coffee and side tables preserving the live edge with colored or smoked resin." }, image: "/images/real/turquoise-epoxy-table.jpeg" },
-  { id: "desks", title: { tr: "Çalışma Masaları", en: "Desks" }, eyebrow: { tr: "ÇALIŞMA ALANI", en: "WORKSPACE" }, description: { tr: "Kablo, çekmece ve ölçü detayları kullanım biçimine göre tasarlanan masalar.", en: "Desks tailored around cable, drawer and dimension requirements." }, image: "/images/walnut-desk.webp" },
+  { id: "tables", title: { tr: "Masalar", en: "Tables" }, eyebrow: { tr: "TEK PARÇA ÜRETİM", en: "ONE OF ONE" }, description: { tr: "Epoksili veya düz kütük; yemek, toplantı ve çalışma alanları için özel ölçü masalar.", en: "Custom-size resin or solid-slab tables for dining, meetings and work." }, image: tableGallery[0], gallery: tableGallery },
+  { id: "coffee-tables", title: { tr: "Sehpalar", en: "Coffee Tables" }, eyebrow: { tr: "YAŞAM ALANI", en: "LIVING SPACE" }, description: { tr: "Doğal kenarı koruyan, renkli veya füme epoksiyle tamamlanan orta ve yan sehpalar.", en: "Coffee and side tables preserving the live edge with colored or smoked resin." }, image: coffeeTableGallery[0], gallery: coffeeTableGallery },
+  { id: "desks", title: { tr: "Çalışma Masaları", en: "Desks" }, eyebrow: { tr: "ÇALIŞMA ALANI", en: "WORKSPACE" }, description: { tr: "Kablo, çekmece ve ölçü detayları kullanım biçimine göre tasarlanan masalar.", en: "Desks tailored around cable, drawer and dimension requirements." }, image: deskGallery[0], gallery: deskGallery },
   { id: "bars", title: { tr: "Bar Üniteleri", en: "Bar Units" }, eyebrow: { tr: "ÖNCELİKLİ KOLEKSİYON", en: "PRIORITY COLLECTION" }, description: { tr: "Ev, restoran ve oteller için tezgâh, depolama ve servis çözümleri.", en: "Counter, storage and service solutions for homes, restaurants and hotels." }, image: "/images/real/priority-bar-01.jpeg", gallery: [
     "/images/real/priority-bar-01.jpeg", "/images/real/priority-bar-02.jpeg", "/images/real/priority-bar-03.jpeg", "/images/real/priority-bar-04.jpeg", "/images/real/priority-bar-05.jpeg",
   ], priority: true },

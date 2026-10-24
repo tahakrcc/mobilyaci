@@ -17,12 +17,23 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   const t = copy[locale];
   const other = locale === "tr" ? "en" : "tr";
   const links = [
-    [t.nav.products, `/${locale}/products`],
     [t.nav.chairs, `/${locale}/chairs`],
     [t.nav.sets, `/${locale}/sets`],
     [t.nav.woods, `/${locale}/woods`],
     [t.nav.projects, `/${locale}/projects`],
     [t.nav.track, `/${locale}/track`],
+  ];
+  const furnitureLinks = [
+    [locale === "tr" ? "Masalar" : "Tables", `/${locale}/products/category/tables`],
+    [locale === "tr" ? "Sehpalar" : "Coffee Tables", `/${locale}/products/category/coffee-tables`],
+    [locale === "tr" ? "Çalışma Masaları" : "Desks", `/${locale}/products/category/desks`],
+    [locale === "tr" ? "TV Üniteleri" : "TV Units", `/${locale}/products/category/tv-units`],
+    [locale === "tr" ? "Konsollar" : "Consoles", `/${locale}/products/category/consoles`],
+    [locale === "tr" ? "Bar Üniteleri" : "Bar Units", `/${locale}/products/category/bars`],
+    [locale === "tr" ? "Kitaplıklar" : "Bookcases", `/${locale}/products/category/bookcases`],
+    [locale === "tr" ? "Kahve Köşeleri" : "Coffee Corners", `/${locale}/products/category/coffee-corners`],
+    [t.nav.chairs, `/${locale}/chairs`],
+    [t.nav.sets, `/${locale}/sets`],
   ];
   return (
     <header className={`site-header${scrolled ? " is-scrolled" : ""}${open ? " menu-open" : ""}`}>
@@ -30,8 +41,14 @@ export function SiteHeader({ locale }: { locale: Locale }) {
         <span className="brand-mark">WU</span>
         <span className="brand-word">WOODEN<span>UNIVERSE</span></span>
       </a>
-      <nav className={open ? "nav-links open" : "nav-links"} aria-label="Ana navigasyon">
-        {links.map(([label, href]) => <a key={href} href={href} onClick={() => setOpen(false)}>{label}</a>)}
+      <nav className={open ? "nav-links open" : "nav-links"} aria-label={locale === "tr" ? "Ana navigasyon" : "Main navigation"}>
+        <div className="nav-catalog-group">
+          <a href={`/${locale}/products`} onClick={() => setOpen(false)}>{t.nav.products}</a>
+          <div className="nav-catalog-submenu" aria-label={locale === "tr" ? "Mobilya kategorileri" : "Furniture categories"}>
+            {furnitureLinks.map(([label, href]) => <a key={href} href={href} onClick={() => setOpen(false)}>{label}</a>)}
+          </div>
+        </div>
+        {links.map(([label, href], index) => <a className={index < 2 ? "nav-desktop-category" : undefined} key={href} href={href} onClick={() => setOpen(false)}>{label}</a>)}
         <a className="lang-link" href={`/${other}`}>{other.toUpperCase()}</a>
         <a className="nav-cta" href={`/${locale}/design`}>{t.nav.design}</a>
       </nav>
