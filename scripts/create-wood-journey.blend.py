@@ -4,13 +4,14 @@ import bpy
 import math
 import os
 import random
+import numpy as np
 from mathutils import Vector
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 MODEL_PATH = os.path.join(ROOT, "public", "models", "wood-journey.glb")
 PREVIEW_PATH = os.path.join(ROOT, "outputs", "wood-journey-preview.png")
 TABLE_PREVIEW_PATH = os.path.join(ROOT, "outputs", "wood-journey-table-preview.png")
-TABLE_PHOTO_PATH = os.path.join(ROOT, "public", "images", "real", "black-epoxy-slab.jpeg")
+TABLE_PHOTO_PATH = os.path.join(ROOT, "public", "images", "real", "turquoise-epoxy-table.jpeg")
 random.seed(41)
 
 
@@ -203,54 +204,114 @@ def make_slab_half(name, side, parent, wood_mat, edge_mat):
     return obj
 
 
-def make_photo_tabletop(parent, photo_mat):
-    """Project the site's real tabletop photo onto a subdivided 3D surface."""
-    columns, rows = 24, 8
-    verts, faces = [], []
-    # The photo is a perspective view. These four corners mark only its tabletop,
-    # excluding the workshop behind it, and are projected back to a flat plane.
-    image_width, image_height = 1086, 1448
-    corners = [
-        (286, 314),  # far left
-        (745, 306),  # far right
-        (0, 1230),  # near left
-        (1085, 1210),  # near right
-    ]
-    far_left, far_right, near_left, near_right = corners
+def make_photo_tabletop(parent, photo, wood_mat, resin_mat, edge_wood, edge_resin, edge_dark):
+    """Recover the photo's perspective and give its epoxy river real surface depth."""
+    columns, rows = 100, 40
+    width, height = photo.size
+    pixels = np.empty(width * height * 4, dtype=np.float32)
+    photo.pixels.foreach_get(pixels)
+    pixels = pixels.reshape((height, width, 4))
+    # The four corners trace the actual turquoise table, not the workbenches.
+    far_left = (5, 385)
+    far_right = (490, 304)
+    near_left = (185, 1057)
+    near_right = (1080, 857)
+
+    def point_on_photo(along, across):
+        depth = along / (2.0 - along)
+        left_x = far_left[0] * (1 - depth) + near_left[0] * depth
+        right_x = far_right[0] * (1 - depth) + near_right[0] * depth
+        left_y = far_left[1] * (1 - depth) + near_left[1] * depth
+        right_y = far_right[1] * (1 - depth) + near_right[1] * depth
+        return (left_x * (1 - across) + right_x * across,
+                left_y * (1 - across) + right_y * across)
+
+    def is_epoxy(pixel_x, pixel_y):
+        x = max(0, min(width - 1, round(pixel_x)))
+        y = max(0, min(height - 1, round(pixel_y)))
+        red, green, blue = pixels[height - 1 - y, x, :3]
+        return green > red * 1.24 and blue > red * 1.28 and green > 0.12 and blue > 0.15
+
+    verts, faces, face_mats = [], [], []
     for row in range(rows + 1):
         across = row / rows
         y = -1.27 + 2.54 * across
         for column in range(columns + 1):
             along = column / columns
             x = -2.08 + 4.16 * along
-            verts.append((x, y, 0.135))
+            px, py = point_on_photo(along, across)
+            # The resin is slightly recessed, while polished olive wood stands proud.
+            samples = [is_epoxy(px + dx, py + dy) for dx, dy in
+                       ((0, 0), (-5, 0), (5, 0), (0, -5), (0, 5))]
+            resin_coverage = sum(samples) / len(samples)
+            z = 0.13 - 0.034 * resin_coverage
+            verts.append((x, y, z))
     for row in range(rows):
         for column in range(columns):
             start = row * (columns + 1) + column
             faces.append((start, start + 1, start + columns + 2, start + columns + 1))
-    mesh = bpy.data.meshes.new("RealTabletopPhotoMesh")
+            px, py = point_on_photo((column + 0.5) / columns, (row + 0.5) / rows)
+            face_mats.append(1 if is_epoxy(px, py) else 0)
+
+    mesh = bpy.data.meshes.new("TurquoiseRiverTabletopMesh")
     mesh.from_pydata(verts, [], faces)
     mesh.update()
-    obj = bpy.data.objects.new("RealTabletopPhoto", mesh)
+    obj = bpy.data.objects.new("TurquoiseRiverTabletop", mesh)
     bpy.context.collection.objects.link(obj)
     obj.parent = parent
-    obj.data.materials.append(photo_mat)
+    obj.data.materials.append(wood_mat)
+    obj.data.materials.append(resin_mat)
     uv = obj.data.uv_layers.new(name="UVMap")
-    for poly in obj.data.polygons:
+    for poly, material_index in zip(obj.data.polygons, face_mats):
+        poly.material_index = material_index
+        poly.use_smooth = True
         for loop_index in poly.loop_indices:
             index = obj.data.loops[loop_index].vertex_index
             row, column = divmod(index, columns + 1)
-            across = row / rows
-            along = column / columns
-            # A projective interpolation compensates for the photograph's depth.
-            depth = along / (2.35 - 1.35 * along)
-            left_x = far_left[0] * (1 - depth) + near_left[0] * depth
-            right_x = far_right[0] * (1 - depth) + near_right[0] * depth
-            left_y = far_left[1] * (1 - depth) + near_left[1] * depth
-            right_y = far_right[1] * (1 - depth) + near_right[1] * depth
-            pixel_x = left_x * (1 - across) + right_x * across
-            pixel_y = left_y * (1 - across) + right_y * across
-            uv.data[loop_index].uv = (pixel_x / image_width, 1 - pixel_y / image_height)
+            px, py = point_on_photo(column / columns, row / rows)
+            uv.data[loop_index].uv = (px / width, 1 - py / height)
+
+    # The tabletop also has a shaped vertical edge. Each segment follows the
+    # corresponding photographed wood, turquoise resin, or dark natural void.
+    boundary = ([column for column in range(columns + 1)]
+                + [row * (columns + 1) + columns for row in range(1, rows + 1)]
+                + [rows * (columns + 1) + column for column in range(columns - 1, -1, -1)]
+                + [row * (columns + 1) for row in range(rows - 1, 0, -1)])
+    side_verts = []
+    for index in boundary:
+        vx, vy, vz = verts[index]
+        side_verts.extend(((vx, vy, vz), (vx, vy, -0.06)))
+    side_faces = []
+    for index in range(len(boundary)):
+        next_index = (index + 1) % len(boundary)
+        side_faces.append((index * 2, index * 2 + 1, next_index * 2 + 1, next_index * 2))
+    side_mesh = bpy.data.meshes.new("LiveTableEdgeMesh")
+    side_mesh.from_pydata(side_verts, [], side_faces)
+    side_mesh.update()
+    edge_obj = bpy.data.objects.new("LiveTableEdge", side_mesh)
+    bpy.context.collection.objects.link(edge_obj)
+    edge_obj.parent = parent
+    for mat in (edge_wood, edge_resin, edge_dark):
+        edge_obj.data.materials.append(mat)
+    edge_uv = edge_obj.data.uv_layers.new(name="UVMap")
+    perimeter = len(boundary)
+    for index, poly in enumerate(edge_obj.data.polygons):
+        first = boundary[index]
+        second = boundary[(index + 1) % perimeter]
+        first_row, first_column = divmod(first, columns + 1)
+        second_row, second_column = divmod(second, columns + 1)
+        along = ((first_column + second_column) / 2) / columns
+        across = ((first_row + second_row) / 2) / rows
+        px, py = point_on_photo(along, across)
+        pixel_x = max(0, min(width - 1, round(px)))
+        pixel_y = max(0, min(height - 1, round(py)))
+        red, green, blue = pixels[height - 1 - pixel_y, pixel_x, :3]
+        poly.material_index = 1 if is_epoxy(px, py) else (2 if max(red, green, blue) < 0.17 else 0)
+        for loop_index in poly.loop_indices:
+            vertex_index = edge_obj.data.loops[loop_index].vertex_index
+            vertex = side_verts[vertex_index]
+            edge_uv.data[loop_index].uv = ((index + (vertex_index // 2 == (index + 1) % perimeter)) / perimeter * 3,
+                                           (vertex[2] + 0.06) / 0.19)
     return obj
 
 
@@ -284,8 +345,12 @@ ring = material("Growth_Rings", (0.135, 0.052, 0.016), roughness=0.75)
 endgrain = material("Endgrain_Cut", (0.68, 0.43, 0.17), roughness=0.72, image=texture("end-grain"))
 resin = material("Smoked_Resin", (0.012, 0.055, 0.052), roughness=0.13, metallic=0.18, alpha=0.88)
 metal = material("Blackened_Steel", (0.018, 0.017, 0.014), roughness=0.25, metallic=0.92)
-table_photo = material("Real_Tabletop_Photo", (1, 1, 1), roughness=0.2, image=bpy.data.images.load(TABLE_PHOTO_PATH))
-table_edge = material("Polished_Black_Epoxy_Edge", (0.013, 0.011, 0.01), roughness=0.16)
+table_image = bpy.data.images.load(TABLE_PHOTO_PATH)
+table_photo = material("Real_Olive_Wood_Photo", (1, 1, 1), roughness=0.32, image=table_image)
+table_resin = material("Real_Turquoise_Epoxy_Photo", (1, 1, 1), roughness=0.1, image=table_image)
+table_edge_wood = material("Olive_Live_Edge", (0.5, 0.29, 0.12), roughness=0.42, image=texture("olive-grain"))
+table_edge_resin = material("Turquoise_Resin_Edge", (0.008, 0.21, 0.22), roughness=0.13, alpha=0.94)
+table_edge_dark = material("Natural_Void_Edge", (0.014, 0.011, 0.008), roughness=0.24)
 
 trunk_root = empty("TrunkRoot")
 trunk = make_log("SculptedOliveTrunk", 4.15, 1.05, 12, 96, trunk_root, bark, endgrain)
@@ -298,11 +363,12 @@ make_cut_rings(slice_root, -0.085, 1.05, ring, bark_high, "SliceFront")
 
 slab_root = empty("SlabAssembly")
 slab_root.rotation_euler = (0.05, 0.0, -0.03)
-add_box("TabletopSolidCore", (0, 0, 0), (2.08, 1.27, 0.12), table_edge, slab_root, bevel=0.045)
-make_photo_tabletop(slab_root, table_photo)
+add_box("TabletopSolidCore", (0, 0, 0.01), (2.02, 1.21, 0.07), table_edge_dark, slab_root, bevel=0.025)
+make_photo_tabletop(slab_root, table_image, table_photo, table_resin,
+                    table_edge_wood, table_edge_resin, table_edge_dark)
 for x in (-1.48, 1.48):
-    add_box(f"SteelLeg_{x}_A", (x, -0.83, -0.72), (0.07, 0.07, 0.62), metal, slab_root, bevel=0.035)
-    add_box(f"SteelLeg_{x}_B", (x, 0.83, -0.72), (0.07, 0.07, 0.62), metal, slab_root, bevel=0.035)
+    add_box(f"SteelLeg_{x}_A", (x, -0.83, -0.68), (0.07, 0.07, 0.64), metal, slab_root, bevel=0.035)
+    add_box(f"SteelLeg_{x}_B", (x, 0.83, -0.68), (0.07, 0.07, 0.64), metal, slab_root, bevel=0.035)
     add_box(f"SteelLeg_{x}_Rail", (x, 0, -1.3), (0.07, 0.9, 0.07), metal, slab_root, bevel=0.035)
 
 # Keep the alternate stages in the file; the website controls their visibility.
@@ -337,22 +403,22 @@ floor.hide_viewport = False
 
 bpy.ops.object.light_add(type="AREA", location=(-1.8, -3.5, 4.8))
 key = bpy.context.object
-key.data.energy = 1150
+key.data.energy = 900
 key.data.shape = "DISK"
 key.data.size = 4.0
-key.data.color = (1.0, 0.63, 0.27)
+key.data.color = (1.0, 0.78, 0.52)
 look_at(key, (0, 0, 0))
 bpy.ops.object.light_add(type="AREA", location=(3.4, 2.8, 1.6))
 fill = bpy.context.object
-fill.data.energy = 850
+fill.data.energy = 600
 fill.data.size = 3.0
-fill.data.color = (1.0, 0.88, 0.62)
+fill.data.color = (1.0, 0.94, 0.78)
 look_at(fill, (0, 0, 0))
 bpy.ops.object.light_add(type="AREA", location=(-3.0, 3.4, 0.4))
 rim = bpy.context.object
-rim.data.energy = 620
+rim.data.energy = 350
 rim.data.size = 2.0
-rim.data.color = (0.42, 0.24, 0.08)
+rim.data.color = (0.48, 0.32, 0.17)
 look_at(rim, (0, 0, 0))
 
 bpy.ops.object.camera_add(location=(5.8, -7.0, 3.35))

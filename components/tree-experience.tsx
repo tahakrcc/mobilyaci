@@ -48,6 +48,14 @@ function TreeModel({ progress, color }: { progress: number; color: string }) {
           material.roughness = 0.9;
         }
         if (material.name === "Growth_Rings") material.roughness = 0.86;
+        if (material.name === "Real_Olive_Wood_Photo") {
+          material.color.set("#dfc19d");
+          material.roughness = 0.34;
+        }
+        if (material.name === "Real_Turquoise_Epoxy_Photo") {
+          material.color.set("#d6eeee");
+          material.roughness = 0.1;
+        }
         if (material.name === "Olive_Heartwood" || material.name === "Endgrain_Cut") {
           material.color.copy(selected).lerp(new THREE.Color("#ffffff"), 0.78);
           material.roughness = material.name === "Endgrain_Cut" ? 0.78 : 0.58;
