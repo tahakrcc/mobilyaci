@@ -41,13 +41,15 @@ function TreeModel({ progress, color, rotationTarget }: { progress: number; colo
       materials.forEach((material) => {
         if ("envMapIntensity" in material) material.envMapIntensity = 0.42;
         if ("metalness" in material && material.name !== "Blackened_Steel") material.metalness = 0;
-        if (material.name === "Bark_Rough") {
-          material.color.set("#ffffff");
-          material.roughness = 0.96;
-        }
-        if (material.name === "Bark_Ridge") {
-          material.color.set("#412010");
-          material.roughness = 0.9;
+        if (material.name === "Bark_Rough" || material.name === "Bark_Ridge") {
+          material.color.set(material.name === "Bark_Rough" ? "#ffffff" : "#412010");
+          material.roughness = 1;
+          material.envMapIntensity = 0;
+          if (material instanceof THREE.MeshPhysicalMaterial) {
+            material.clearcoat = 0;
+            material.specularIntensity = 0.06;
+            material.needsUpdate = true;
+          }
         }
         if (material.name === "Growth_Rings") material.roughness = 0.86;
         if (material.name === "Real_Olive_Wood_Photo") {
@@ -60,7 +62,12 @@ function TreeModel({ progress, color, rotationTarget }: { progress: number; colo
         }
         if (material.name === "Olive_Heartwood" || material.name === "Endgrain_Cut") {
           material.color.copy(selected).lerp(new THREE.Color("#ffffff"), 0.78);
-          material.roughness = material.name === "Endgrain_Cut" ? 0.78 : 0.58;
+          material.roughness = material.name === "Endgrain_Cut" ? 1 : 0.58;
+          if (material.name === "Endgrain_Cut" && material instanceof THREE.MeshPhysicalMaterial) {
+            material.envMapIntensity = 0;
+            material.clearcoat = 0;
+            material.specularIntensity = 0.06;
+          }
           material.needsUpdate = true;
         }
       });
