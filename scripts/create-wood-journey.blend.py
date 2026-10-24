@@ -9,6 +9,8 @@ from mathutils import Vector
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 MODEL_PATH = os.path.join(ROOT, "public", "models", "wood-journey.glb")
 PREVIEW_PATH = os.path.join(ROOT, "outputs", "wood-journey-preview.png")
+TABLE_PREVIEW_PATH = os.path.join(ROOT, "outputs", "wood-journey-table-preview.png")
+TABLE_PHOTO_PATH = os.path.join(ROOT, "public", "images", "real", "black-epoxy-slab.jpeg")
 random.seed(41)
 
 
@@ -201,6 +203,57 @@ def make_slab_half(name, side, parent, wood_mat, edge_mat):
     return obj
 
 
+def make_photo_tabletop(parent, photo_mat):
+    """Project the site's real tabletop photo onto a subdivided 3D surface."""
+    columns, rows = 24, 8
+    verts, faces = [], []
+    # The photo is a perspective view. These four corners mark only its tabletop,
+    # excluding the workshop behind it, and are projected back to a flat plane.
+    image_width, image_height = 1086, 1448
+    corners = [
+        (286, 314),  # far left
+        (745, 306),  # far right
+        (0, 1230),  # near left
+        (1085, 1210),  # near right
+    ]
+    far_left, far_right, near_left, near_right = corners
+    for row in range(rows + 1):
+        across = row / rows
+        y = -1.27 + 2.54 * across
+        for column in range(columns + 1):
+            along = column / columns
+            x = -2.08 + 4.16 * along
+            verts.append((x, y, 0.135))
+    for row in range(rows):
+        for column in range(columns):
+            start = row * (columns + 1) + column
+            faces.append((start, start + 1, start + columns + 2, start + columns + 1))
+    mesh = bpy.data.meshes.new("RealTabletopPhotoMesh")
+    mesh.from_pydata(verts, [], faces)
+    mesh.update()
+    obj = bpy.data.objects.new("RealTabletopPhoto", mesh)
+    bpy.context.collection.objects.link(obj)
+    obj.parent = parent
+    obj.data.materials.append(photo_mat)
+    uv = obj.data.uv_layers.new(name="UVMap")
+    for poly in obj.data.polygons:
+        for loop_index in poly.loop_indices:
+            index = obj.data.loops[loop_index].vertex_index
+            row, column = divmod(index, columns + 1)
+            across = row / rows
+            along = column / columns
+            # A projective interpolation compensates for the photograph's depth.
+            depth = along / (2.35 - 1.35 * along)
+            left_x = far_left[0] * (1 - depth) + near_left[0] * depth
+            right_x = far_right[0] * (1 - depth) + near_right[0] * depth
+            left_y = far_left[1] * (1 - depth) + near_left[1] * depth
+            right_y = far_right[1] * (1 - depth) + near_right[1] * depth
+            pixel_x = left_x * (1 - across) + right_x * across
+            pixel_y = left_y * (1 - across) + right_y * across
+            uv.data[loop_index].uv = (pixel_x / image_width, 1 - pixel_y / image_height)
+    return obj
+
+
 def add_box(name, location, scale, mat, parent, bevel=0.04):
     bpy.ops.mesh.primitive_cube_add(location=location)
     obj = bpy.context.object
@@ -231,6 +284,8 @@ ring = material("Growth_Rings", (0.135, 0.052, 0.016), roughness=0.75)
 endgrain = material("Endgrain_Cut", (0.68, 0.43, 0.17), roughness=0.72, image=texture("end-grain"))
 resin = material("Smoked_Resin", (0.012, 0.055, 0.052), roughness=0.13, metallic=0.18, alpha=0.88)
 metal = material("Blackened_Steel", (0.018, 0.017, 0.014), roughness=0.25, metallic=0.92)
+table_photo = material("Real_Tabletop_Photo", (1, 1, 1), roughness=0.2, image=bpy.data.images.load(TABLE_PHOTO_PATH))
+table_edge = material("Polished_Black_Epoxy_Edge", (0.013, 0.011, 0.01), roughness=0.16)
 
 trunk_root = empty("TrunkRoot")
 trunk = make_log("SculptedOliveTrunk", 4.15, 1.05, 12, 96, trunk_root, bark, endgrain)
@@ -243,9 +298,8 @@ make_cut_rings(slice_root, -0.085, 1.05, ring, bark_high, "SliceFront")
 
 slab_root = empty("SlabAssembly")
 slab_root.rotation_euler = (0.05, 0.0, -0.03)
-make_slab_half("LiveEdge_Left", -1, slab_root, wood, bark)
-make_slab_half("LiveEdge_Right", 1, slab_root, wood, bark)
-add_box("ResinRiver", (0, 0, 0.005), (2.08, 0.28, 0.105), resin, slab_root, bevel=0.08)
+add_box("TabletopSolidCore", (0, 0, 0), (2.08, 1.27, 0.12), table_edge, slab_root, bevel=0.045)
+make_photo_tabletop(slab_root, table_photo)
 for x in (-1.48, 1.48):
     add_box(f"SteelLeg_{x}_A", (x, -0.83, -0.72), (0.07, 0.07, 0.62), metal, slab_root, bevel=0.035)
     add_box(f"SteelLeg_{x}_B", (x, 0.83, -0.72), (0.07, 0.07, 0.62), metal, slab_root, bevel=0.035)
@@ -319,6 +373,17 @@ scene.render.image_settings.color_mode = "RGBA"
 scene.view_settings.look = "AgX - Medium High Contrast"
 bpy.ops.render.render(write_still=True)
 
+# Check the finished table stage separately, including its photographic top.
+for obj in preview_hidden:
+    obj.hide_render = obj == slice_root or obj.parent == slice_root
+for obj in bpy.context.scene.objects:
+    if obj == trunk_root or obj.parent == trunk_root:
+        obj.hide_render = True
+camera.location = (4.7, -6.8, 5.1)
+look_at(camera, (0, 0, -0.28))
+scene.render.filepath = TABLE_PREVIEW_PATH
+bpy.ops.render.render(write_still=True)
+
 # Do not ship preview-only studio objects.
 bpy.data.objects.remove(floor, do_unlink=True)
 bpy.data.objects.remove(camera, do_unlink=True)
@@ -327,6 +392,9 @@ bpy.data.objects.remove(fill, do_unlink=True)
 bpy.data.objects.remove(rim, do_unlink=True)
 for obj in preview_hidden:
     obj.hide_render = False
+for obj in bpy.context.scene.objects:
+    if obj == trunk_root or obj.parent == trunk_root:
+        obj.hide_render = False
 
 bpy.ops.file.pack_all()
 bpy.context.preferences.filepaths.save_version = 0
@@ -343,3 +411,4 @@ bpy.ops.export_scene.gltf(
 
 print(f"MODEL={MODEL_PATH}")
 print(f"PREVIEW={PREVIEW_PATH}")
+print(f"TABLE_PREVIEW={TABLE_PREVIEW_PATH}")
