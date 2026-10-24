@@ -77,35 +77,46 @@ function TreeModel({ progress, color, rotationTarget }: { progress: number; colo
   useFrame((state, delta) => {
     if (!stageRoot.current || !trunk || !crossSection || !slab) return;
     rotation.current = THREE.MathUtils.damp(rotation.current, rotationTarget.current, 12, delta);
+    const mobile = state.size.width < 640;
+    const tablet = state.size.width < 980;
 
     const cutReveal = THREE.MathUtils.smoothstep(progress, 0.12, 0.35);
-    const productReveal = THREE.MathUtils.smoothstep(progress, 0.56, 0.78);
-    const trunkScale = 1 - productReveal * 0.36;
-    trunk.visible = progress < 0.79;
-    trunk.scale.setScalar(trunkScale);
-    trunk.position.x = THREE.MathUtils.lerp(0.5, 1.55, cutReveal);
-    trunk.position.y = THREE.MathUtils.lerp(0.05, 0.22, cutReveal);
+    const trunkExit = mobile
+      ? THREE.MathUtils.smoothstep(progress, 0.32, 0.5)
+      : THREE.MathUtils.smoothstep(progress, 0.52, 0.68);
+    const sliceExit = mobile
+      ? THREE.MathUtils.smoothstep(progress, 0.7, 0.8)
+      : THREE.MathUtils.smoothstep(progress, 0.72, 0.86);
+    const productReveal = mobile
+      ? THREE.MathUtils.smoothstep(progress, 0.76, 0.88)
+      : THREE.MathUtils.smoothstep(progress, 0.69, 0.86);
+    trunk.visible = trunkExit < 0.88;
+    trunk.scale.setScalar(Math.max(0.001, (1 - trunkExit) * (mobile ? 0.64 : 1)));
+    trunk.position.x = mobile
+      ? -0.3 + trunkExit * 0.3
+      : THREE.MathUtils.lerp(0.5, 1.55, cutReveal) + trunkExit * 0.8;
+    trunk.position.y = THREE.MathUtils.lerp(0.05, 0.22, cutReveal) + trunkExit * 0.2;
     trunk.rotation.x = -0.04;
     trunk.rotation.y = THREE.MathUtils.lerp(0.7, 1.05, progress) + state.clock.elapsedTime * 0.035 + rotation.current;
     trunk.rotation.z = -0.09 + progress * 0.06;
 
-    crossSection.visible = progress > 0.08 && progress < 0.79;
-    const sliceScale = cutReveal * (1 - productReveal) * 1.08;
+    crossSection.visible = progress > 0.08 && sliceExit < 0.94;
+    const sliceScale = cutReveal * (1 - sliceExit) * (mobile ? 0.86 : 1.08);
     crossSection.scale.setScalar(Math.max(0.001, sliceScale));
     crossSection.position.set(
-      THREE.MathUtils.lerp(-2.5, -1.35, cutReveal),
+      mobile
+        ? THREE.MathUtils.lerp(-0.8, -0.1, trunkExit) - sliceExit * 0.15
+        : THREE.MathUtils.lerp(-2.5, -1.35, cutReveal) + trunkExit * 0.2 - sliceExit * 0.65,
       THREE.MathUtils.lerp(-0.32, 0.04, cutReveal),
       0.62,
     );
     crossSection.rotation.set(0, Math.PI / 2 - 0.03 + rotation.current, -0.12 + progress * 0.32);
 
-    slab.visible = progress > 0.53;
-    slab.scale.setScalar(Math.max(0.001, productReveal * 0.76));
-    slab.position.set(THREE.MathUtils.lerp(2.4, -0.12, productReveal), -0.1, 0.15);
+    slab.visible = productReveal > 0.04;
+    slab.scale.setScalar(Math.max(0.001, productReveal * (mobile ? 0.82 : 0.76)));
+    slab.position.set(THREE.MathUtils.lerp(mobile ? 0.15 : 1.45, -0.12, productReveal), -0.1, 0.15);
     slab.rotation.set(0.78 - productReveal * 0.12, 0.05 + rotation.current, -0.08);
 
-    const mobile = state.size.width < 640;
-    const tablet = state.size.width < 980;
     stageRoot.current.scale.setScalar(mobile ? 0.72 : tablet ? 0.88 : 1.08);
     stageRoot.current.position.y = (mobile ? 1.02 : tablet ? 0.45 : 0) + Math.sin(state.clock.elapsedTime * 0.42) * 0.02;
     state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, (mobile ? 8.6 : 7.6) - progress * 0.45, 0.04);
