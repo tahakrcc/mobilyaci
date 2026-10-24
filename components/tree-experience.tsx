@@ -40,7 +40,7 @@ function TreeModel({ progress, color }: { progress: number; color: string }) {
         if ("envMapIntensity" in material) material.envMapIntensity = 0.42;
         if ("metalness" in material && material.name !== "Blackened_Steel") material.metalness = 0;
         if (material.name === "Bark_Rough") {
-          material.color.set("#2b160c");
+          material.color.set("#ffffff");
           material.roughness = 0.96;
         }
         if (material.name === "Bark_Ridge") {
@@ -48,9 +48,9 @@ function TreeModel({ progress, color }: { progress: number; color: string }) {
           material.roughness = 0.9;
         }
         if (material.name === "Growth_Rings") material.roughness = 0.86;
-        if (material.name === "Olive_Heartwood" || material.name === "Sapwood_Gold") {
-          material.color.copy(selected).lerp(new THREE.Color("#8f5d2f"), 0.22);
-          material.roughness = 0.68;
+        if (material.name === "Olive_Heartwood" || material.name === "Endgrain_Cut") {
+          material.color.copy(selected).lerp(new THREE.Color("#ffffff"), 0.78);
+          material.roughness = material.name === "Endgrain_Cut" ? 0.78 : 0.58;
           material.needsUpdate = true;
         }
       });

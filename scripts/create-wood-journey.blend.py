@@ -19,7 +19,11 @@ def clear_scene():
         pass
 
 
-def material(name, color, roughness=0.5, metallic=0.0, alpha=1.0):
+def texture(name):
+    return bpy.data.images.load(os.path.join(ROOT, "assets", "wood-journey", name + ".jpg"))
+
+
+def material(name, color, roughness=0.5, metallic=0.0, alpha=1.0, image=None):
     mat = bpy.data.materials.new(name)
     mat.diffuse_color = (*color, alpha)
     mat.use_nodes = True
@@ -31,6 +35,10 @@ def material(name, color, roughness=0.5, metallic=0.0, alpha=1.0):
             output = mat.node_tree.nodes.new("ShaderNodeOutputMaterial")
         mat.node_tree.links.new(bsdf.outputs["BSDF"], output.inputs["Surface"])
     bsdf.inputs["Base Color"].default_value = (*color, 1.0)
+    if image is not None:
+        tex = mat.node_tree.nodes.new("ShaderNodeTexImage")
+        tex.image = image
+        mat.node_tree.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
     bsdf.inputs["Roughness"].default_value = roughness
     bsdf.inputs["Metallic"].default_value = metallic
     if "Coat Weight" in bsdf.inputs:
@@ -95,6 +103,17 @@ def make_log(name, length, radius, rings, segments, parent, bark_mat, wood_mat):
     for poly in obj.data.polygons:
         poly.material_index = 0 if poly.index < side_faces else 1
         poly.use_smooth = poly.index < side_faces
+    uv = obj.data.uv_layers.new(name="UVMap")
+    for poly in obj.data.polygons:
+        seam = poly.index < side_faces and any(v % segments == 0 for v in poly.vertices) and any(v % segments == segments - 1 for v in poly.vertices)
+        for loop_index in poly.loop_indices:
+            vertex_index = obj.data.loops[loop_index].vertex_index
+            vx, vy, vz = obj.data.vertices[vertex_index].co
+            if poly.index < side_faces:
+                angle_u = (vertex_index % segments) / segments
+                uv.data[loop_index].uv = (1.0 if seam and angle_u == 0 else angle_u, (vx / length + .5) * 1.7)
+            else:
+                uv.data[loop_index].uv = (vy / (radius * 2.3) + .5, vz / (radius * 2.3) + .5)
     bevel = obj.modifiers.new("HandSoftenedEdges", "BEVEL")
     bevel.width = 0.025
     bevel.segments = 2
@@ -119,20 +138,6 @@ def poly_curve(name, points, bevel, mat, parent):
 
 
 def make_cut_rings(parent, x, radius, ring_mat, bark_mat, prefix, segments=88):
-    for idx in range(13):
-        base = radius * (0.10 + idx * 0.064)
-        points = []
-        for j in range(segments + 1):
-            theta = 2 * math.pi * j / segments
-            wobble = 1 + 0.035 * math.sin(theta * (3 + idx % 4) + idx * 0.7) + 0.016 * math.sin(theta * 11)
-            points.append((x, base * wobble * math.cos(theta), base * wobble * math.sin(theta)))
-        poly_curve(f"{prefix}_GrowthRing_{idx:02d}", points, 0.007 + (idx % 3) * 0.0015, ring_mat, parent)
-    rim_points = []
-    for j in range(segments + 1):
-        theta = 2 * math.pi * j / segments
-        r = irregular_radius(theta, seed=0.4, base=radius * 0.985)
-        rim_points.append((x, r * math.cos(theta), r * math.sin(theta)))
-    poly_curve(prefix + "_BarkRim", rim_points, 0.055, bark_mat, parent)
     for idx, angle in enumerate((-1.8, -0.72, 0.28, 1.38)):
         points = []
         for step in range(7):
@@ -185,6 +190,11 @@ def make_slab_half(name, side, parent, wood_mat, edge_mat):
     obj.data.materials.append(edge_mat)
     for poly, mat_index in zip(obj.data.polygons, face_mats):
         poly.material_index = mat_index
+    uv = obj.data.uv_layers.new(name="UVMap")
+    for poly in obj.data.polygons:
+        for loop_index in poly.loop_indices:
+            vertex = obj.data.vertices[obj.data.loops[loop_index].vertex_index].co
+            uv.data[loop_index].uv = (vertex.x / 4.2 + .5, vertex.y / 2.8 + .5)
     bevel = obj.modifiers.new("SlabEdgeSoftening", "BEVEL")
     bevel.width = 0.035
     bevel.segments = 3
@@ -214,22 +224,21 @@ clear_scene()
 os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
 os.makedirs(os.path.dirname(PREVIEW_PATH), exist_ok=True)
 
-bark = material("Bark_Rough", (0.105, 0.045, 0.018), roughness=0.94)
+bark = material("Bark_Rough", (0.105, 0.045, 0.018), roughness=0.94, image=texture("bark"))
 bark_high = material("Bark_Ridge", (0.19, 0.075, 0.024), roughness=0.88)
-wood = material("Olive_Heartwood", (0.47, 0.255, 0.095), roughness=0.5)
+wood = material("Olive_Heartwood", (0.47, 0.255, 0.095), roughness=0.58, image=texture("olive-grain"))
 ring = material("Growth_Rings", (0.135, 0.052, 0.016), roughness=0.75)
-sapwood = material("Sapwood_Gold", (0.68, 0.43, 0.17), roughness=0.42)
+endgrain = material("Endgrain_Cut", (0.68, 0.43, 0.17), roughness=0.72, image=texture("end-grain"))
 resin = material("Smoked_Resin", (0.012, 0.055, 0.052), roughness=0.13, metallic=0.18, alpha=0.88)
 metal = material("Blackened_Steel", (0.018, 0.017, 0.014), roughness=0.25, metallic=0.92)
 
 trunk_root = empty("TrunkRoot")
-trunk = make_log("SculptedOliveTrunk", 4.15, 1.05, 12, 96, trunk_root, bark, wood)
+trunk = make_log("SculptedOliveTrunk", 4.15, 1.05, 12, 96, trunk_root, bark, endgrain)
 make_cut_rings(trunk_root, -2.09, 1.05, ring, bark_high, "Trunk")
-make_bark_grooves(trunk_root, 4.15, 1.05, bark_high)
 
 slice_root = empty("CrossSection")
 slice_root.location.x = -2.85
-slice = make_log("CrossSectionDisc", 0.16, 1.05, 2, 96, slice_root, bark, wood)
+slice = make_log("CrossSectionDisc", 0.16, 1.05, 2, 96, slice_root, bark, endgrain)
 make_cut_rings(slice_root, -0.085, 1.05, ring, bark_high, "SliceFront")
 
 slab_root = empty("SlabAssembly")
@@ -243,8 +252,9 @@ for x in (-1.48, 1.48):
     add_box(f"SteelLeg_{x}_Rail", (x, 0, -1.3), (0.07, 0.9, 0.07), metal, slab_root, bevel=0.035)
 
 # Keep the alternate stages in the file; the website controls their visibility.
-slice_root.hide_render = True
-slab_root.hide_render = True
+preview_hidden = [obj for obj in bpy.context.scene.objects if obj == slice_root or obj == slab_root or obj.parent == slice_root or obj.parent == slab_root]
+for obj in preview_hidden:
+    obj.hide_render = True
 
 # Convert curves and apply modifiers for predictable glTF output.
 for obj in list(bpy.context.scene.objects):
@@ -315,8 +325,12 @@ bpy.data.objects.remove(camera, do_unlink=True)
 bpy.data.objects.remove(key, do_unlink=True)
 bpy.data.objects.remove(fill, do_unlink=True)
 bpy.data.objects.remove(rim, do_unlink=True)
-slice_root.hide_render = False
-slab_root.hide_render = False
+for obj in preview_hidden:
+    obj.hide_render = False
+
+bpy.ops.file.pack_all()
+bpy.context.preferences.filepaths.save_version = 0
+bpy.ops.wm.save_as_mainfile(filepath=os.path.join(ROOT, "assets", "wood-journey", "wood-journey.blend"))
 
 bpy.ops.export_scene.gltf(
     filepath=MODEL_PATH,
