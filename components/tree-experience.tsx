@@ -119,7 +119,6 @@ export function TreeExperience({ locale }: { locale: Locale }) {
   const pointer = useRef<{ id: number; startX: number; startY: number; lastX: number; dragging: boolean } | null>(null);
   const [dragging, setDragging] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [treeId, setTreeId] = useState("olive");
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -159,9 +158,9 @@ export function TreeExperience({ locale }: { locale: Locale }) {
     window.addEventListener("scroll", update, { passive: true });
     return () => window.removeEventListener("scroll", update);
   }, []);
-  const tree = trees.find((item) => item.id === treeId) ?? trees[0];
-  const stagesTr = ["Yaşayan gövde", "Kabuk ve öz", "Yıllık halkalar", "Damar seçimi", "Plakadan tasarıma"];
-  const stagesEn = ["Living trunk", "Bark and core", "Growth rings", "Grain selection", "Slab to design"];
+  const tree = trees[0];
+  const stagesTr = ["Yaşayan gövde", "Kabuk ve öz", "Yıllık halkalar", "Doğal damar", "Plakadan tasarıma"];
+  const stagesEn = ["Living trunk", "Bark and core", "Growth rings", "Natural grain", "Slab to design"];
   const stage = Math.min(4, Math.floor(progress * 5));
   return (
     <section ref={section} className="tree-journey" id="woods">
@@ -196,9 +195,6 @@ export function TreeExperience({ locale }: { locale: Locale }) {
         </div>
         <div className="tree-copy">
           <p className="eyebrow">{locale === "tr" ? "3D DAMAR ATLASI" : "3D GRAIN ATLAS"}</p>
-          <div className="tree-switcher">
-            {trees.map((item) => <button key={item.id} onClick={() => setTreeId(item.id)} className={item.id === tree.id ? "active" : ""}>{locale === "tr" ? item.tr : item.en}</button>)}
-          </div>
           <p className="stage-index">0{stage + 1} / 05</p>
           <h3>{(locale === "tr" ? stagesTr : stagesEn)[stage]}</h3>
           <p>{locale === "tr" ? tree.traitTr : tree.traitEn}</p>
