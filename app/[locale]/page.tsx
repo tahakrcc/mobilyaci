@@ -8,6 +8,7 @@ import { HeroGallery } from "@/components/hero-gallery";
 import { GhostTypeHeading, RevealHeading3D, RibbonType, ScrollRevealController, TextReveal3D } from "@/components/editorial-motion";
 import { ProductFlipbook } from "@/components/product-flipbook";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteIntroLoader } from "@/components/site-intro-loader";
 import { copy, isLocale } from "@/lib/catalog";
 import { resolveContent } from "@/lib/content-store";
 import { localized } from "@/lib/collection-data";
@@ -32,6 +33,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     "process.title": t.processTitle, "cta.title": t.ctaTitle, "footer.text": t.footer,
   });
   return <main className="public-site">
+    <SiteIntroLoader locale={locale} />
     <ScrollRevealController />
     <SiteHeader locale={locale} />
     <section className="hero">

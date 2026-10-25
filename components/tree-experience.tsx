@@ -35,6 +35,11 @@ function TreeModel({ progress, color, yawTarget, pitchTarget, modelUrl }: { prog
   }, [scene]);
 
   useEffect(() => {
+    document.documentElement.dataset.woodModelReady = "true";
+    window.dispatchEvent(new Event("wu:model-ready"));
+  }, []);
+
+  useEffect(() => {
     const selected = new THREE.Color(color);
     model.traverse((child) => {
       if (!(child instanceof THREE.Mesh)) return;
@@ -82,17 +87,15 @@ function TreeModel({ progress, color, yawTarget, pitchTarget, modelUrl }: { prog
     const mobile = state.size.width < 640;
     const tablet = state.size.width < 980;
 
-    const cutReveal = THREE.MathUtils.smoothstep(progress, 0.12, 0.35);
-    const trunkExit = mobile
-      ? THREE.MathUtils.smoothstep(progress, 0.32, 0.5)
-      : THREE.MathUtils.smoothstep(progress, 0.52, 0.68);
+    const trunkExit = THREE.MathUtils.smoothstep(progress, 0.17, 0.27);
+    const cutReveal = THREE.MathUtils.smoothstep(progress, 0.29, 0.39);
     const sliceExit = mobile
       ? THREE.MathUtils.smoothstep(progress, 0.7, 0.8)
       : THREE.MathUtils.smoothstep(progress, 0.72, 0.86);
     const productReveal = mobile
       ? THREE.MathUtils.smoothstep(progress, 0.76, 0.88)
       : THREE.MathUtils.smoothstep(progress, 0.69, 0.86);
-    trunk.visible = trunkExit < 0.88;
+    trunk.visible = trunkExit < 0.98;
     trunk.scale.setScalar(Math.max(0.001, (1 - trunkExit) * (mobile ? 0.64 : 1)));
     trunk.position.x = mobile
       ? -0.3 + trunkExit * 0.3
@@ -102,7 +105,7 @@ function TreeModel({ progress, color, yawTarget, pitchTarget, modelUrl }: { prog
     trunk.rotation.y = THREE.MathUtils.lerp(0.7, 1.05, progress) + state.clock.elapsedTime * 0.035 + yaw.current;
     trunk.rotation.z = -0.09 + progress * 0.06;
 
-    crossSection.visible = progress > 0.08 && sliceExit < 0.94;
+    crossSection.visible = cutReveal > 0.02 && sliceExit < 0.94;
     const sliceScale = cutReveal * (1 - sliceExit) * (mobile ? 0.86 : 1.08);
     crossSection.scale.setScalar(Math.max(0.001, sliceScale));
     crossSection.position.set(

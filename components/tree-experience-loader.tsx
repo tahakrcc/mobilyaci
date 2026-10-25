@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import ReactDOM from "react-dom";
 import type { Locale } from "@/lib/catalog";
 
 function TreeLoading() {
@@ -30,24 +30,11 @@ const TreeExperience = dynamic(() => import("@/components/tree-experience").then
 });
 
 export function TreeExperienceLoader({ locale, modelUrl }: { locale: Locale; modelUrl: string }) {
-  const placeholder = useRef<HTMLDivElement>(null);
-  const [nearby, setNearby] = useState(false);
-
-  useEffect(() => {
-    const target = placeholder.current;
-    if (!target) return;
-    if (!("IntersectionObserver" in window)) {
-      const timer = setTimeout(() => setNearby(true), 0);
-      return () => clearTimeout(timer);
-    }
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      setNearby(true);
-      observer.disconnect();
-    }, { rootMargin: "800px 0px" });
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, []);
-
-  return <div ref={placeholder}>{nearby ? <TreeExperience locale={locale} modelUrl={modelUrl} /> : <TreeLoading />}</div>;
+  ReactDOM.preload(modelUrl, { as: "fetch", crossOrigin: "anonymous" });
+  try {
+    ReactDOM.preconnect(new URL(modelUrl, window.location.href).origin, { crossOrigin: "anonymous" });
+  } catch {
+    // Relative model URLs already share the page connection.
+  }
+  return <TreeExperience locale={locale} modelUrl={modelUrl} />;
 }
