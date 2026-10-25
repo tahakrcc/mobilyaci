@@ -19,7 +19,7 @@ export function SiteIntroLoader({ locale }: { locale: Locale }) {
     let fallbackTimer = 0;
 
     const leave = () => {
-      const remaining = Math.max(0, 2200 - (performance.now() - startedAt));
+      const remaining = Math.max(0, 1500 - (performance.now() - startedAt));
       window.clearTimeout(leaveTimer);
       leaveTimer = window.setTimeout(() => {
         setPhase("leaving");
@@ -46,22 +46,15 @@ export function SiteIntroLoader({ locale }: { locale: Locale }) {
   const tr = locale === "tr";
   return (
     <div className={`site-intro-loader${phase === "leaving" ? " is-leaving" : ""}`} role="status" aria-live="polite" aria-label={tr ? "Wooden Universe hazırlanıyor" : "Wooden Universe is preparing"}>
-      <div className="intro-workshop" aria-hidden="true">
-        <div className="intro-mark"><span>WU</span><small>WOODEN UNIVERSE</small></div>
-        <div className="intro-making">
-          <div className="intro-log"><i /><i /><b /></div>
-          <div className="intro-saw"><i /></div>
-          <div className="intro-slab"><i /><b /></div>
-          <div className="intro-table"><i /><b /><b /></div>
-          <div className="intro-chair"><i /><b /><b /><b /></div>
-          <div className="intro-dust"><i /><i /><i /><i /><i /></div>
+      <div className="classic-loader" aria-hidden="true">
+        <div className="classic-loader-brand"><span>WU</span><strong>WOODEN<br />UNIVERSE</strong></div>
+        <div className="classic-loader-rings">
+          <i /><i /><i /><i />
+          <b>WU</b>
         </div>
-        <div className="intro-copy">
-          <span>{tr ? "ATÖLYEDE HAZIRLANIYOR" : "CRAFTED IN THE WORKSHOP"}</span>
-          <strong>{tr ? "Ağacın karakteri, yaşam alanınıza dönüşüyor." : "The character of wood becomes part of your space."}</strong>
-          <div className="intro-progress"><i /></div>
-          <small>{tr ? "PLAKA · ZANAAT · FORM" : "SLAB · CRAFT · FORM"}</small>
-        </div>
+        <p>{tr ? "ATÖLYE HAZIRLANIYOR" : "PREPARING THE WORKSHOP"}</p>
+        <small>{tr ? "Ahşap, tasarım ve zanaat yükleniyor" : "Loading wood, design and craftsmanship"}</small>
+        <div className="classic-loader-progress"><i /></div>
       </div>
     </div>
   );
