@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getDb } from "@/db";
 import { orderEvents, orders } from "@/db/schema";
+import { formatTurkishMobile, normalizeEmail } from "@/lib/contact-validation";
 import { notifyNewOrder } from "@/lib/notifications";
 
 const orderSchema = z.object({
   locale: z.enum(["tr", "en"]).default("tr"),
   customerName: z.string().trim().min(2).max(120),
   email: z.string().email().max(180),
-  phone: z.string().trim().min(7).max(30),
+  phone: z.string().regex(/^5\d{2}-\d{3}-\d{4}$/),
   city: z.string().trim().min(2).max(80),
   productType: z.string().trim().min(2).max(80),
   woodType: z.string().trim().min(2).max(80),
@@ -27,10 +28,17 @@ function randomToken() {
 
 export async function POST(request: Request) {
   try {
-    const parsed = orderSchema.safeParse(await request.json());
+    const payload = await request.json() as unknown;
+    const record = payload && typeof payload === "object" && !Array.isArray(payload) ? payload as Record<string, unknown> : null;
+    const normalizedPayload = record ? {
+      ...record,
+      email: typeof record.email === "string" ? normalizeEmail(record.email) : record.email,
+      phone: typeof record.phone === "string" ? formatTurkishMobile(record.phone) : record.phone,
+    } : payload;
+    const parsed = orderSchema.safeParse(normalizedPayload);
     if (!parsed.success) return NextResponse.json({ error: "invalid-order", fields: parsed.error.flatten().fieldErrors }, { status: 400 });
     const data = parsed.data;
-    const normalizedData = { ...data, email: data.email.toLowerCase() };
+    const normalizedData = data;
     const now = new Date().toISOString();
     const id = crypto.randomUUID();
     const orderNumber = `WU-${new Date().getUTCFullYear()}-${randomToken().slice(0, 8).toUpperCase()}`;
@@ -48,9 +56,9 @@ export async function POST(request: Request) {
       email: data.email,
       phone: data.phone,
       summary: `${data.productType} · ${data.woodType} · ${data.epoxy} · ${data.dimensions}`,
-    }).catch(() => ({ sent: false, reason: "failed" }));
+    }).catch(() => ({ sent: false, reason: "failed", adminSent: false, customerSent: false }));
     await db.update(orders).set({ notificationStatus: notification.sent ? "sent" : notification.reason }).where((await import("drizzle-orm")).eq(orders.id, id));
-    return NextResponse.json({ orderNumber, trackingToken, status: "received" }, { status: 201 });
+    return NextResponse.json({ orderNumber, trackingToken, status: "received", customerEmailSent: notification.customerSent }, { status: 201 });
   } catch (error) {
     console.error("order-create", error);
     return NextResponse.json({ error: "order-create-failed" }, { status: 500 });

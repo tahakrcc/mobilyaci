@@ -525,6 +525,10 @@ html, body { background: var(--wu-black); color: var(--wu-ivory); }
 .choice-grid small, .wood-options span { color: var(--wu-smoke); }
 .field > span { color: var(--wu-gold-light); }.field input, .field textarea, .field select { color: var(--wu-ivory); border-color: rgba(214,166,79,.38); background: transparent; color-scheme: dark; }.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--wu-gold); box-shadow: 0 1px 0 var(--wu-gold); }
 .field input::placeholder, .field textarea::placeholder { color: #6f695b; }
+.contact-field .field-feedback { min-height: 18px; display: flex; align-items: center; gap: 6px; color: #d06b62; font-size: 12px; line-height: 18px; }
+.contact-field.valid input { border-color: #708f6f; box-shadow: 0 1px 0 rgba(112,143,111,.65); }
+.contact-field.valid .field-feedback { color: #91b58d; }
+.contact-field.invalid input { border-color: #b6534c; box-shadow: 0 1px 0 rgba(182,83,76,.5); }
 .detail-choice-stack { display: grid; gap: 30px; }
 .detail-choice-group { min-width: 0; margin: 0; padding: 0; border: 0; }
 .detail-choice-group legend { margin-bottom: 12px; color: var(--wu-gold-light); font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }

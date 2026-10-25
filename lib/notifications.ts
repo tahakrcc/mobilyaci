@@ -76,7 +76,9 @@ async function sendEmail(message: EmailMessage) {
       html: message.html,
     }),
   });
-  return { sent: response.ok, reason: response.ok ? "sent" : `provider-${response.status}` };
+  const providerBody = await response.json().catch(() => null) as { name?: string } | null;
+  const providerCode = providerBody?.name ? `-${providerBody.name}` : "";
+  return { sent: response.ok, reason: response.ok ? "sent" : `provider-${response.status}${providerCode}` };
 }
 
 function trackingUrl(orderNumber: string, trackingToken: string) {
@@ -127,7 +129,12 @@ export async function notifyNewOrder(order: { orderNumber: string; trackingToken
       footerNote: tr ? "Bu talep bir ödeme oluşturmaz." : "This request does not create a payment.",
     }),
   });
-  return { sent: admin.sent && customer.sent, reason: `admin:${admin.reason};customer:${customer.reason}` };
+  return {
+    sent: admin.sent && customer.sent,
+    reason: `admin:${admin.reason};customer:${customer.reason}`,
+    adminSent: admin.sent,
+    customerSent: customer.sent,
+  };
 }
 
 export async function notifyOrderUpdate(order: { orderNumber: string; trackingToken: string; locale: string; customerName: string; email: string; statusLabel: string; publicNote: string; estimatedDelivery?: string | null }) {
