@@ -10,9 +10,10 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 import type { Locale } from "@/lib/catalog";
 import { trees } from "@/lib/catalog";
 
-function TreeModel({ progress, color, rotationTarget, modelUrl }: { progress: number; color: string; rotationTarget: { current: number }; modelUrl: string }) {
+function TreeModel({ progress, color, yawTarget, pitchTarget, modelUrl }: { progress: number; color: string; yawTarget: { current: number }; pitchTarget: { current: number }; modelUrl: string }) {
   const stageRoot = useRef<THREE.Group>(null);
-  const rotation = useRef(0);
+  const yaw = useRef(0);
+  const pitch = useRef(0);
   const { scene } = useGLTF(modelUrl);
   const { model, trunk, crossSection, slab } = useMemo(() => {
     const cloned = scene.clone(true);
@@ -76,7 +77,8 @@ function TreeModel({ progress, color, rotationTarget, modelUrl }: { progress: nu
 
   useFrame((state, delta) => {
     if (!stageRoot.current || !trunk || !crossSection || !slab) return;
-    rotation.current = THREE.MathUtils.damp(rotation.current, rotationTarget.current, 12, delta);
+    yaw.current = THREE.MathUtils.damp(yaw.current, yawTarget.current, 12, delta);
+    pitch.current = THREE.MathUtils.damp(pitch.current, pitchTarget.current, 12, delta);
     const mobile = state.size.width < 640;
     const tablet = state.size.width < 980;
 
@@ -96,8 +98,8 @@ function TreeModel({ progress, color, rotationTarget, modelUrl }: { progress: nu
       ? -0.3 + trunkExit * 0.3
       : THREE.MathUtils.lerp(0.5, 1.55, cutReveal) + trunkExit * 0.8;
     trunk.position.y = THREE.MathUtils.lerp(0.05, 0.22, cutReveal) + trunkExit * 0.2;
-    trunk.rotation.x = -0.04;
-    trunk.rotation.y = THREE.MathUtils.lerp(0.7, 1.05, progress) + state.clock.elapsedTime * 0.035 + rotation.current;
+    trunk.rotation.x = -0.04 + pitch.current;
+    trunk.rotation.y = THREE.MathUtils.lerp(0.7, 1.05, progress) + state.clock.elapsedTime * 0.035 + yaw.current;
     trunk.rotation.z = -0.09 + progress * 0.06;
 
     crossSection.visible = progress > 0.08 && sliceExit < 0.94;
@@ -110,12 +112,12 @@ function TreeModel({ progress, color, rotationTarget, modelUrl }: { progress: nu
       THREE.MathUtils.lerp(-0.32, 0.04, cutReveal),
       0.62,
     );
-    crossSection.rotation.set(0, Math.PI / 2 - 0.03 + rotation.current, -0.12 + progress * 0.32);
+    crossSection.rotation.set(pitch.current, Math.PI / 2 - 0.03 + yaw.current, -0.12 + progress * 0.32);
 
     slab.visible = productReveal > 0.04;
     slab.scale.setScalar(Math.max(0.001, productReveal * (mobile ? 0.82 : 0.76)));
     slab.position.set(THREE.MathUtils.lerp(mobile ? 0.15 : 1.45, -0.12, productReveal), -0.1, 0.15);
-    slab.rotation.set(0.78 - productReveal * 0.12, 0.05 + rotation.current, -0.08);
+    slab.rotation.set(0.78 - productReveal * 0.12 + pitch.current, 0.05 + yaw.current, -0.08);
 
     stageRoot.current.scale.setScalar(mobile ? 0.72 : tablet ? 0.88 : 1.08);
     stageRoot.current.position.y = (mobile ? 1.02 : tablet ? 0.45 : 0) + Math.sin(state.clock.elapsedTime * 0.42) * 0.02;
@@ -131,15 +133,16 @@ function TreeModel({ progress, color, rotationTarget, modelUrl }: { progress: nu
 
 export function TreeExperience({ locale, modelUrl }: { locale: Locale; modelUrl: string }) {
   const section = useRef<HTMLElement>(null);
-  const rotationTarget = useRef(0);
-  const pointer = useRef<{ id: number; startX: number; startY: number; lastX: number; dragging: boolean } | null>(null);
+  const yawTarget = useRef(0);
+  const pitchTarget = useRef(0);
+  const pointer = useRef<{ id: number; type: string; startX: number; startY: number; lastX: number; lastY: number; dragging: boolean } | null>(null);
   const [dragging, setDragging] = useState(false);
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(false);
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
-    pointer.current = { id: event.pointerId, startX: event.clientX, startY: event.clientY, lastX: event.clientX, dragging: false };
+    pointer.current = { id: event.pointerId, type: event.pointerType, startX: event.clientX, startY: event.clientY, lastX: event.clientX, lastY: event.clientY, dragging: false };
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
@@ -149,12 +152,16 @@ export function TreeExperience({ locale, modelUrl }: { locale: Locale; modelUrl:
     const horizontal = event.clientX - gesture.startX;
     const vertical = event.clientY - gesture.startY;
     if (!gesture.dragging) {
-      if (Math.abs(horizontal) < 6 || Math.abs(horizontal) <= Math.abs(vertical)) return;
+      if (Math.hypot(horizontal, vertical) < 6) return;
+      if (gesture.type !== "mouse" && Math.abs(vertical) >= Math.abs(horizontal)) return;
       gesture.dragging = true;
       setDragging(true);
     }
-    rotationTarget.current += (event.clientX - gesture.lastX) * 0.007;
+    event.preventDefault();
+    yawTarget.current += (event.clientX - gesture.lastX) * 0.007;
+    pitchTarget.current = THREE.MathUtils.clamp(pitchTarget.current + (event.clientY - gesture.lastY) * 0.006, -1.15, 1.15);
     gesture.lastX = event.clientX;
+    gesture.lastY = event.clientY;
   };
 
   const onPointerEnd = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -197,16 +204,17 @@ export function TreeExperience({ locale, modelUrl }: { locale: Locale; modelUrl:
           className={`tree-canvas${dragging ? " is-dragging" : ""}`}
           role="group"
           tabIndex={0}
-          aria-label={locale === "tr" ? "3D modeli sağa sola sürükleyerek veya ok tuşlarıyla çevirin" : "Rotate the 3D model by dragging sideways or using the arrow keys"}
+          aria-label={locale === "tr" ? "3D modeli sağa sola ve yukarı aşağı sürükleyerek veya ok tuşlarıyla çevirin" : "Rotate the 3D model in any direction by dragging or using the arrow keys"}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerEnd}
           onPointerCancel={onPointerEnd}
           onLostPointerCapture={onPointerEnd}
           onKeyDown={(event) => {
-            if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+            if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
             event.preventDefault();
-            rotationTarget.current += event.key === "ArrowLeft" ? -0.2 : 0.2;
+            if (event.key === "ArrowLeft" || event.key === "ArrowRight") yawTarget.current += event.key === "ArrowLeft" ? -0.2 : 0.2;
+            else pitchTarget.current = THREE.MathUtils.clamp(pitchTarget.current + (event.key === "ArrowUp" ? -0.16 : 0.16), -1.15, 1.15);
           }}
         >
           <Canvas camera={{ position: [0, 0, 7.2], fov: 42 }} dpr={[1, 1.65]} frameloop={visible ? "always" : "never"} shadows>
@@ -215,7 +223,7 @@ export function TreeExperience({ locale, modelUrl }: { locale: Locale; modelUrl:
             <directionalLight position={[5, 7, 5]} intensity={2.65} color="#ffd7a0" castShadow />
             <pointLight position={[-4, 1, 3]} intensity={1.4} color="#7f5227" />
             <Suspense fallback={null}>
-              <TreeModel progress={progress} color={tree.tone} rotationTarget={rotationTarget} modelUrl={modelUrl} />
+              <TreeModel progress={progress} color={tree.tone} yawTarget={yawTarget} pitchTarget={pitchTarget} modelUrl={modelUrl} />
             </Suspense>
             <ContactShadows position={[0, -1.72, 0]} opacity={0.34} scale={8} blur={2.8} far={4} color="#000000" />
             <Environment preset="warehouse" environmentIntensity={0.38} />
@@ -231,7 +239,7 @@ export function TreeExperience({ locale, modelUrl }: { locale: Locale; modelUrl:
             <span>{locale === "tr" ? "Tipik olgunluk" : "Typical maturity"}<strong>{tree.years} {locale === "tr" ? "yıl" : "years"}</strong></span>
           </div>
           <div className="journey-progress"><i style={{ width: `${Math.max(3, progress * 100)}%` }} /></div>
-          <small>{locale === "tr" ? "Devam etmek için kaydırın · modeli sağa sola sürükleyin" : "Scroll to continue · drag sideways to rotate"}</small>
+          <small>{locale === "tr" ? "Devam etmek için kaydırın · modeli her yöne sürükleyin" : "Scroll to continue · drag in any direction to rotate"}</small>
         </div>
       </div>
     </section>
