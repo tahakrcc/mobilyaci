@@ -1126,6 +1126,12 @@ html, body, .public-site { max-width: 100%; overflow-x: clip; }
 .catalog-lookbook-pages img { display: block; width: 100%; height: auto; }
 .catalog-lookbook-pages figcaption { position: absolute; right: 13px; bottom: 11px; padding: 7px 9px; color: var(--wu-gold-light); background: rgba(4,4,3,.82); font-size: 8px; letter-spacing: .16em; }
 .site-footer-expanded { grid-template-columns:1.1fr 1.4fr .8fr .8fr 1fr auto;align-items:start; }.site-footer-expanded .footer-links,.site-footer-expanded .footer-legal { display:grid !important;gap:10px !important; }.site-footer-expanded a { color:var(--wu-smoke);font-size:11px; }.site-footer-expanded a:hover { color:var(--wu-gold-light); }
+.brand-mark-image { border:0; box-shadow:none; }
+.brand-mark-image::after { display:none; }
+.brand-mark-image img { display:block; width:100%; height:100%; object-fit:contain; }
+.footer-brand-logo { display:block; width:min(180px,100%); height:auto; }
+.footer-bottom { grid-column:1 / -1; display:flex; justify-content:space-between; gap:16px; border-top:1px solid var(--wu-line); margin-top:28px; padding-top:22px; }
+.footer-bottom a { color:var(--wu-gold-light); text-decoration:underline; text-underline-offset:3px; }
 .media-editor { border:1px solid var(--wu-line); background:#0b0b09; padding:12px; display:grid; gap:12px; }
 .media-preview { padding:0; border:0; background:transparent; color:var(--wu-ivory); text-align:left; cursor:pointer; }
 .media-preview img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; margin-bottom:8px; }
@@ -1166,6 +1172,7 @@ img[style*="--image-position"] { object-position:var(--image-position); }
   .about-manifesto { grid-template-columns:1fr; }.about-manifesto > div { min-height:300px;padding:28px 20px; }.about-manifesto h2 { margin-top:70px;font-size:38px; }.studio-quote { padding:90px 20px; }.studio-quote blockquote { font-size:49px; }
   .contact-paths { grid-template-columns:1fr; }.contact-path { min-height:360px;padding:30px 20px; }.contact-path > svg:not(:last-child) { margin-top:55px; }.contact-note { grid-template-columns:1fr;gap:18px;padding:65px 20px; }.faq-list { padding:25px 20px 90px; }.faq-list summary { grid-template-columns:34px 1fr 25px;gap:12px; }.faq-list h2 { font-size:28px; }.faq-list details > p { padding-left:46px; }.legal-copy { padding:70px 20px 95px; }.catalog-actions { align-items:flex-start;flex-direction:column; }
   .site-footer-expanded { grid-template-columns:1fr; }.site-footer-expanded > p { margin:0; }
+  .footer-bottom { flex-direction:column; margin-top:0; }
   .catalog-lookbook { padding:0 16px 75px; }.catalog-lookbook-toolbar { top:72px;align-items:flex-start;padding:18px 0 16px; }.catalog-lookbook-toolbar .eyebrow,.catalog-lookbook-meta > span { display:none; }.catalog-lookbook-toolbar h2 { margin:0;font-size:27px; }.catalog-lookbook-meta a { padding:10px;font-size:0; }.catalog-lookbook-meta a svg { width:18px; }.catalog-lookbook-hint { padding:26px 0;font-size:12px; }.catalog-lookbook-pages { grid-template-columns:1fr;gap:16px; }
 }
 

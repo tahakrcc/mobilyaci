@@ -4,6 +4,7 @@ import { getDb } from "@/db";
 import { orderEvents, orders } from "@/db/schema";
 import { formatTurkishMobile, normalizeEmail } from "@/lib/contact-validation";
 import { notifyNewOrder } from "@/lib/notifications";
+import { orderChoiceLabel } from "@/lib/order-details";
 
 const orderSchema = z.object({
   locale: z.enum(["tr", "en"]).default("tr"),
@@ -18,6 +19,8 @@ const orderSchema = z.object({
   dimensions: z.string().trim().min(2).max(120),
   finish: z.string().trim().min(2).max(80),
   notes: z.string().trim().max(2000).default(""),
+  upholstery: z.enum(["project-fabric", "leather", "boucle", "customer-choice"]).optional(),
+  quantity: z.string().trim().max(120).optional(),
 });
 
 function randomToken() {
@@ -38,14 +41,20 @@ export async function POST(request: Request) {
     const parsed = orderSchema.safeParse(normalizedPayload);
     if (!parsed.success) return NextResponse.json({ error: "invalid-order", fields: parsed.error.flatten().fieldErrors }, { status: 400 });
     const data = parsed.data;
-    const normalizedData = data;
+    const { upholstery, quantity, ...orderData } = data;
+    const seating = ["chair", "bar-chair", "set"].includes(data.productType);
+    const storedNotes = [
+      data.notes,
+      seating && upholstery ? `${data.locale === "tr" ? "Döşeme" : "Upholstery"}: ${orderChoiceLabel("upholstery", upholstery, data.locale)}` : "",
+      seating && quantity ? `${data.locale === "tr" ? "Model / adet" : "Model / quantity"}: ${quantity}` : "",
+    ].filter(Boolean).join("\n\n");
     const now = new Date().toISOString();
     const id = crypto.randomUUID();
     const orderNumber = `WU-${new Date().getUTCFullYear()}-${randomToken().slice(0, 8).toUpperCase()}`;
     const trackingToken = randomToken();
     const db = getDb();
     await db.batch([
-      db.insert(orders).values({ ...normalizedData, id, orderNumber, trackingToken, status: "received", createdAt: now, updatedAt: now }),
+      db.insert(orders).values({ ...orderData, notes: storedNotes, id, orderNumber, trackingToken, status: "received", createdAt: now, updatedAt: now }),
       db.insert(orderEvents).values({ id: crypto.randomUUID(), orderId: id, status: "received", publicNote: data.locale === "tr" ? "Sipariş talebiniz ekibimize ulaştı." : "Your request has reached our team.", createdAt: now }),
     ]);
     const notification = await notifyNewOrder({
@@ -55,7 +64,16 @@ export async function POST(request: Request) {
       customerName: data.customerName,
       email: data.email,
       phone: data.phone,
-      summary: `${data.productType} · ${data.woodType} · ${data.epoxy} · ${data.dimensions}`,
+      city: data.city,
+      productType: data.productType,
+      woodType: data.woodType,
+      epoxy: data.epoxy,
+      legStyle: data.legStyle,
+      dimensions: data.dimensions,
+      finish: data.finish,
+      notes: data.notes,
+      upholstery,
+      quantity,
     }).catch(() => ({ sent: false, reason: "failed", adminSent: false, customerSent: false }));
     await db.update(orders).set({ notificationStatus: notification.sent ? "sent" : notification.reason }).where((await import("drizzle-orm")).eq(orders.id, id));
     return NextResponse.json({ orderNumber, trackingToken, status: "received", customerEmailSent: notification.customerSent }, { status: 201 });

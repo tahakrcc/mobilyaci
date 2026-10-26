@@ -32,7 +32,11 @@ export function PriorityCategoryCard({ href, title, eyebrow, description, images
 
   return <a className="priority-card blur-reveal" href={href}>
     <div className="priority-card-media" aria-hidden="true">
-      {images.map((image, index) => <SiteImage className={index === activeImage ? "active" : ""} src={image} alt="" key={image} />)}
+      {images.map((image, index) => (
+        index === activeImage || index === (activeImage + 1) % images.length || (activeImage > 0 && index === activeImage - 1)
+          ? <SiteImage className={index === activeImage ? "active" : ""} src={image} alt="" key={image} />
+          : null
+      ))}
     </div>
     <span>{number}</span>
     <div className="priority-card-copy"><small>{eyebrow}</small><h3>{title}</h3><p>{description}</p><ArrowUpRight /></div>

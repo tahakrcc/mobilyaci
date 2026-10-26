@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Locale } from "@/lib/catalog";
@@ -38,7 +39,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   return (
     <header className={`site-header${scrolled ? " is-scrolled" : ""}${open ? " menu-open" : ""}`}>
       <a className="brand" href={`/${locale}`} aria-label="WoodenUniverse">
-        <span className="brand-mark">WU</span>
+        <span className="brand-mark brand-mark-image"><Image src="/brand/wooden-universe-mark.png" alt="" width={48} height={48} /></span>
         <span className="brand-word">WOODEN<span>UNIVERSE</span></span>
       </a>
       <nav className={open ? "nav-links open" : "nav-links"} aria-label={locale === "tr" ? "Ana navigasyon" : "Main navigation"}>

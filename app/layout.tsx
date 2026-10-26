@@ -5,8 +5,9 @@ export const metadata: Metadata = {
   title: { default: "WoodenUniverse", template: "%s · WoodenUniverse" },
   description: "Özel ahşap ve epoksi mobilyalar. Ağacınızı keşfedin, kişisel tasarım talebinizi oluşturun ve üretimi takip edin.",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: "/brand/wooden-universe-favicon.png",
+    shortcut: "/brand/wooden-universe-favicon.png",
+    apple: "/brand/wooden-universe-mark.png",
   },
 };
 

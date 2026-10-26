@@ -1,3 +1,5 @@
+import { orderDetailRows, type OrderDetail, type OrderSelections } from "@/lib/order-details";
+
 type EmailMessage = { to: string; subject: string; text: string; html: string };
 
 function escapeHtml(value: string) {
@@ -9,24 +11,27 @@ function escapeHtml(value: string) {
     .replaceAll("'", "&#039;");
 }
 
-function emailLayout({ eyebrow, title, intro, orderNumber, details, actionLabel, actionUrl, footerNote }: {
+function emailLayout({ eyebrow, title, intro, orderNumber, details, actionLabel, actionUrl, footerNote, locale = "tr" }: {
   eyebrow: string;
   title: string;
   intro: string;
   orderNumber: string;
-  details: Array<{ label: string; value: string }>;
+  details: OrderDetail[];
   actionLabel: string;
   actionUrl: string;
   footerNote: string;
+  locale?: "tr" | "en";
 }) {
   const detailRows = details.map(({ label, value }) => `
     <tr>
-      <td style="padding:10px 0;color:#8f8879;font-size:12px;line-height:18px;text-transform:uppercase;letter-spacing:1.2px;border-bottom:1px solid #2a261d;">${escapeHtml(label)}</td>
-      <td style="padding:10px 0;color:#f3ead9;font-size:14px;line-height:20px;text-align:right;border-bottom:1px solid #2a261d;">${escapeHtml(value)}</td>
+      <td style="padding:13px 0;border-bottom:1px solid #2a261d;">
+        <span style="display:block;color:#a99d85;font-size:11px;line-height:17px;text-transform:uppercase;letter-spacing:1.2px;">${escapeHtml(label)}</span>
+        <span style="display:block;padding-top:4px;color:#f3ead9;font-size:15px;line-height:22px;overflow-wrap:anywhere;">${escapeHtml(value).replaceAll("\n", "<br>")}</span>
+      </td>
     </tr>`).join("");
 
   return `<!doctype html>
-  <html lang="tr">
+  <html lang="${locale}">
     <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
     <body style="margin:0;padding:0;background:#090a08;color:#f3ead9;font-family:Arial,Helvetica,sans-serif;">
       <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(intro)}</div>
@@ -45,7 +50,7 @@ function emailLayout({ eyebrow, title, intro, orderNumber, details, actionLabel,
             <tr><td style="padding:18px 36px 0;color:#bcb3a3;font-size:15px;line-height:24px;">${escapeHtml(intro)}</td></tr>
             <tr><td style="padding:28px 36px 0;">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0b0c0a;border:1px solid #2e291e;border-radius:12px;">
-                <tr><td style="padding:22px 24px 8px;color:#8f8879;font-size:10px;line-height:16px;letter-spacing:1.8px;text-transform:uppercase;">Sipariş kodu</td></tr>
+                <tr><td style="padding:22px 24px 8px;color:#8f8879;font-size:10px;line-height:16px;letter-spacing:1.8px;text-transform:uppercase;">${locale === "tr" ? "Sipariş kodu" : "Request code"}</td></tr>
                 <tr><td style="padding:0 24px 18px;color:#d9ad4e;font-family:Georgia,'Times New Roman',serif;font-size:25px;line-height:32px;letter-spacing:1px;">${escapeHtml(orderNumber)}</td></tr>
                 <tr><td style="padding:0 24px 18px;"><table role="presentation" width="100%" cellspacing="0" cellpadding="0">${detailRows}</table></td></tr>
               </table>
@@ -81,29 +86,36 @@ async function sendEmail(message: EmailMessage) {
   return { sent: response.ok, reason: response.ok ? "sent" : `provider-${response.status}${providerCode}` };
 }
 
-function trackingUrl(orderNumber: string, trackingToken: string) {
-  const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://woodenuniverse.vercel.app").replace(/\/$/, "");
-  return `${base}/tr/track?order=${encodeURIComponent(orderNumber)}&token=${encodeURIComponent(trackingToken)}`;
+function trackingUrl(orderNumber: string, trackingToken: string, locale: "tr" | "en") {
+  const base = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://woodenuniverse.com").replace(/\/$/, "");
+  return `${base}/${locale}/track?order=${encodeURIComponent(orderNumber)}&token=${encodeURIComponent(trackingToken)}`;
 }
 
-export async function notifyNewOrder(order: { orderNumber: string; trackingToken: string; locale: "tr" | "en"; customerName: string; email: string; phone: string; summary: string }) {
+function detailsText(details: OrderDetail[]) {
+  return details.map(({ label, value }) => `${label}: ${value}`).join("\n");
+}
+
+export async function notifyNewOrder(order: OrderSelections & { orderNumber: string; trackingToken: string; locale: "tr" | "en"; customerName: string; email: string; phone: string; city: string }) {
   const notificationEmail = process.env.ORDER_NOTIFICATION_EMAIL;
-  const url = trackingUrl(order.orderNumber, order.trackingToken);
+  const url = trackingUrl(order.orderNumber, order.trackingToken, order.locale);
+  const customerDetails = orderDetailRows(order, order.locale);
+  const adminDetails: OrderDetail[] = [
+    { label: "Müşteri", value: order.customerName },
+    { label: "E-posta", value: order.email },
+    { label: "Telefon", value: order.phone },
+    { label: "Şehir", value: order.city },
+    ...orderDetailRows(order, "tr"),
+  ];
   const admin = notificationEmail ? await sendEmail({
     to: notificationEmail,
     subject: `Yeni sipariş talebi: ${order.orderNumber}`,
-    text: `${order.customerName}\n${order.email}\n${order.phone}\n\n${order.summary}\n\nTakip: ${url}`,
+    text: `Yeni tasarım talebi\nSipariş kodu: ${order.orderNumber}\n\n${detailsText(adminDetails)}\n\nTakip: ${url}`,
     html: emailLayout({
       eyebrow: "YENİ TASARIM TALEBİ",
       title: "Atölyeye yeni bir talep ulaştı.",
       intro: `${order.customerName} özel üretim için iletişim bilgilerini bıraktı.`,
       orderNumber: order.orderNumber,
-      details: [
-        { label: "Müşteri", value: order.customerName },
-        { label: "E-posta", value: order.email },
-        { label: "Telefon", value: order.phone },
-        { label: "Talep", value: order.summary },
-      ],
+      details: adminDetails,
       actionLabel: "SİPARİŞİ GÖRÜNTÜLE",
       actionUrl: url,
       footerNote: "Müşteriyle fiyat ve üretim planı için iletişime geçin.",
@@ -114,8 +126,8 @@ export async function notifyNewOrder(order: { orderNumber: string; trackingToken
     to: order.email,
     subject: tr ? `Talebiniz alındı · ${order.orderNumber}` : `Your request was received · ${order.orderNumber}`,
     text: tr
-      ? `Merhaba ${order.customerName},\n\nWooden Universe tasarım talebinizi aldı. Bu işlem bir ödeme oluşturmaz. Ekibimiz fiyat ve üretim planı için sizinle iletişime geçecek.\n\nSipariş kodu: ${order.orderNumber}\n${order.summary}\n\nTakip: ${url}`
-      : `Hello ${order.customerName},\n\nWooden Universe has received your design request. No payment has been taken. Our team will contact you with pricing and production details.\n\nRequest code: ${order.orderNumber}\n${order.summary}\n\nTrack: ${url}`,
+      ? `Merhaba ${order.customerName},\n\nWooden Universe tasarım talebinizi aldı. Bu işlem bir ödeme oluşturmaz. Ekibimiz fiyat ve üretim planı için sizinle iletişime geçecek.\n\nSipariş kodu: ${order.orderNumber}\n\n${detailsText(customerDetails)}\n\nSiparişinizi takip edin: ${url}`
+      : `Hello ${order.customerName},\n\nWooden Universe has received your design request. No payment has been taken. Our team will contact you with pricing and production details.\n\nRequest code: ${order.orderNumber}\n\n${detailsText(customerDetails)}\n\nTrack your request: ${url}`,
     html: emailLayout({
       eyebrow: tr ? "TASARIM TALEBİNİZ ALINDI" : "YOUR DESIGN REQUEST IS IN",
       title: tr ? "Parçanızın yolculuğu başladı." : "Your piece's journey has begun.",
@@ -123,10 +135,11 @@ export async function notifyNewOrder(order: { orderNumber: string; trackingToken
         ? `Merhaba ${order.customerName}, talebiniz ekibimize ulaştı. Fiyat ve üretim planı için sizinle iletişime geçeceğiz.`
         : `Hello ${order.customerName}, your request has reached our team. We will contact you with pricing and production details.`,
       orderNumber: order.orderNumber,
-      details: [{ label: tr ? "Tasarım özeti" : "Design summary", value: order.summary }],
+      details: customerDetails,
       actionLabel: tr ? "SİPARİŞİ TAKİP ET" : "TRACK YOUR REQUEST",
       actionUrl: url,
       footerNote: tr ? "Bu talep bir ödeme oluşturmaz." : "This request does not create a payment.",
+      locale: order.locale,
     }),
   });
   return {
@@ -139,7 +152,7 @@ export async function notifyNewOrder(order: { orderNumber: string; trackingToken
 
 export async function notifyOrderUpdate(order: { orderNumber: string; trackingToken: string; locale: string; customerName: string; email: string; statusLabel: string; publicNote: string; estimatedDelivery?: string | null }) {
   const tr = order.locale !== "en";
-  const url = trackingUrl(order.orderNumber, order.trackingToken);
+  const url = trackingUrl(order.orderNumber, order.trackingToken, tr ? "tr" : "en");
   return sendEmail({
     to: order.email,
     subject: tr ? `Sipariş güncellemesi · ${order.orderNumber}` : `Order update · ${order.orderNumber}`,
@@ -155,6 +168,7 @@ export async function notifyOrderUpdate(order: { orderNumber: string; trackingTo
       actionLabel: tr ? "SİPARİŞİ TAKİP ET" : "TRACK YOUR REQUEST",
       actionUrl: url,
       footerNote: tr ? "En güncel üretim aşamalarını takip sayfasından görebilirsiniz." : "See the latest production milestones on the tracking page.",
+      locale: tr ? "tr" : "en",
     }),
   });
 }
