@@ -39,8 +39,8 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   return (
     <header className={`site-header${scrolled ? " is-scrolled" : ""}${open ? " menu-open" : ""}`}>
       <a className="brand" href={`/${locale}`} aria-label="WoodenUniverse">
-        <span className="brand-mark brand-mark-image"><Image src="/brand/wooden-universe-mark.png" alt="" width={48} height={48} /></span>
-        <span className="brand-word">WOODEN<span>UNIVERSE</span></span>
+        <span className="brand-mark brand-mark-image"><Image src="/brand/wooden-universe-mark.png" alt="" width={64} height={64} priority /></span>
+        <span className="brand-word">WOODEN<span>UNIVERSE</span><small>WOOD · EPOXY · CRAFT</small></span>
       </a>
       <nav className={open ? "nav-links open" : "nav-links"} aria-label={locale === "tr" ? "Ana navigasyon" : "Main navigation"}>
         <div className="nav-catalog-group">

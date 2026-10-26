@@ -4,7 +4,7 @@ import type { Locale } from "@/lib/catalog";
 export function SiteFooter({ locale }: { locale: Locale }) {
   const tr = locale === "tr";
   return <footer className="site-footer site-footer-expanded">
-    <div className="brand"><Image className="footer-brand-logo" src="/brand/wooden-universe-logo.webp" alt="WoodenUniverse" width={180} height={180} /></div>
+    <div className="brand"><Image className="footer-brand-logo" src="/brand/wooden-universe-logo.webp" alt="WoodenUniverse · Wood, Epoxy, Craft" width={240} height={240} /></div>
     <p>{tr ? "Adana'da el işçiliğiyle üretilen özel ahşap ve epoksi tasarımlar." : "Bespoke wood and resin pieces handcrafted in Adana."}</p>
     <div className="footer-links"><a href={`/${locale}/products`}>{tr ? "Mobilya" : "Furniture"}</a><a href={`/${locale}/chairs`}>{tr ? "Sandalyeler" : "Chairs"}</a><a href={`/${locale}/sets`}>{tr ? "Masa ve Sandalye Setleri" : "Table & Chair Sets"}</a><a href={`/${locale}/woods`}>{tr ? "Ağaçlar" : "Woods"}</a></div>
     <div className="footer-links"><a href={`/${locale}/about`}>{tr ? "Hakkımızda" : "About"}</a><a href={`/${locale}/contact`}>{tr ? "İletişim" : "Contact"}</a><a href={`/${locale}/faq`}>{tr ? "Sık Sorulanlar" : "FAQ"}</a><a href={`/${locale}/track`}>{tr ? "Sipariş Takibi" : "Track Order"}</a></div>
