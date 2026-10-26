@@ -3,6 +3,20 @@ import { InnerHero, InnerShell, InquiryBand } from "@/components/inner-page";
 import { CatalogLookbook } from "@/components/catalog-lookbook";
 import { isLocale } from "@/lib/catalog";
 import { resolveContent } from "@/lib/content-store";
+import { pageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  return pageMetadata(
+    locale,
+    locale === "tr" ? "Sandalye ve Bar Sandalyesi Modelleri" : "Chair and Bar Stool Models",
+    locale === "tr"
+      ? "Ev, kafe, restoran ve otel projeleri için sandalye ve bar sandalyesi modellerini inceleyin; renk, döşeme ve adet seçenekleriyle teklif isteyin."
+      : "Explore chair and bar stool models for homes, cafes, restaurants and hotels, with color, upholstery and quantity options.",
+    "/chairs",
+  );
+}
 
 export default async function ChairsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: rawLocale } = await params;

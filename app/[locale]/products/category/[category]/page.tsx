@@ -6,8 +6,27 @@ import { RevealHeading3D } from "@/components/editorial-motion";
 import { localized } from "@/lib/collection-data";
 import { isLocale } from "@/lib/catalog";
 import { getCatalog, getFurnitureCategories } from "@/lib/catalog-store";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; category: string }> }) {
+  const { locale, category } = await params;
+  if (!isLocale(locale)) notFound();
+  const item = (await getFurnitureCategories()).find((entry) => entry.id === category);
+  if (!item) notFound();
+  const title = localized(item.title, locale);
+  const description = localized(item.description, locale);
+  return pageMetadata(
+    locale,
+    locale === "tr" ? `Özel Ölçü ${title}` : `Custom ${title}`,
+    locale === "tr"
+      ? `${description} Adana'daki WoodenUniverse atölyesinde ölçünüze göre tasarlanır.`
+      : `${description} Made to measure at the WoodenUniverse workshop in Adana.`,
+    `/products/category/${category}`,
+    item.image,
+  );
+}
 
 export default async function FurnitureCategoryPage({ params }: { params: Promise<{ locale: string; category: string }> }) {
   const { locale: rawLocale, category } = await params;

@@ -13,8 +13,22 @@ import { copy, isLocale } from "@/lib/catalog";
 import { resolveContent } from "@/lib/content-store";
 import { localized } from "@/lib/collection-data";
 import { getCatalog, getFurnitureCategories, getSharedAssetUrl } from "@/lib/catalog-store";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  return pageMetadata(
+    locale,
+    locale === "tr" ? "Özel Tasarım Ahşap ve Epoksi Mobilya" : "Bespoke Wood and Epoxy Furniture",
+    locale === "tr"
+      ? "Adana'daki atölyemizde ölçünüze özel ahşap ve epoksi mobilyalar üretiyoruz. Masa, TV ünitesi, konsol, sandalye ve setleri keşfedin."
+      : "Explore bespoke wood and epoxy furniture handcrafted in Adana: custom tables, TV units, consoles, chairs and dining sets.",
+    "",
+  );
+}
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: rawLocale } = await params;

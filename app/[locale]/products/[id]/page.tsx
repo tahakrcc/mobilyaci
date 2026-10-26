@@ -5,6 +5,24 @@ import { InnerHero, InnerShell, InquiryBand } from "@/components/inner-page";
 import { isLocale, trees } from "@/lib/catalog";
 import { treeProfiles } from "@/lib/site-content";
 import { getCatalog } from "@/lib/catalog-store";
+import { pageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }) {
+  const { locale, id } = await params;
+  if (!isLocale(locale)) notFound();
+  const product = (await getCatalog("products")).find((item) => item.id === id);
+  if (!product) notFound();
+  const title = locale === "tr" ? product.nameTr : product.nameEn;
+  return pageMetadata(
+    locale,
+    title,
+    locale === "tr"
+      ? `${title}: ${product.categoryTr.toLowerCase()} için ahşap, epoksi ve özel ölçü seçeneklerini inceleyin. WoodenUniverse atölyesinden kişisel tasarım talep edin.`
+      : `Explore the wood, resin and custom dimension options for ${title}. Request a bespoke piece from the WoodenUniverse workshop.`,
+    `/products/${id}`,
+    product.image,
+  );
+}
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ locale: string; id: string }> }) {
   const { locale: rawLocale, id } = await params;

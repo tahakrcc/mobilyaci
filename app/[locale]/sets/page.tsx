@@ -3,6 +3,20 @@ import { InnerHero, InnerShell, InquiryBand } from "@/components/inner-page";
 import { CatalogLookbook } from "@/components/catalog-lookbook";
 import { isLocale } from "@/lib/catalog";
 import { resolveContent } from "@/lib/content-store";
+import { pageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  return pageMetadata(
+    locale,
+    locale === "tr" ? "Masa ve Sandalye Setleri" : "Table and Chair Sets",
+    locale === "tr"
+      ? "Ev, kafe, restoran ve oteller için masa ve sandalye setleri. Mekânınıza uygun ölçü, sandalye modeli ve malzemeyle özel teklif oluşturun."
+      : "Table and chair sets for homes, cafes, restaurants and hotels. Choose dimensions, seating and materials for your space.",
+    "/sets",
+  );
+}
 
 export default async function SetsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: rawLocale } = await params;

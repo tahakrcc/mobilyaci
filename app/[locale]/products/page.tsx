@@ -9,8 +9,22 @@ import { localized } from "@/lib/collection-data";
 import { isLocale } from "@/lib/catalog";
 import { resolveContent } from "@/lib/content-store";
 import { getCatalog, getFurnitureCategories } from "@/lib/catalog-store";
+import { pageMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  return pageMetadata(
+    locale,
+    locale === "tr" ? "Özel Tasarım Ahşap Mobilyalar" : "Bespoke Wooden Furniture",
+    locale === "tr"
+      ? "Ölçüye özel masif ahşap ve epoksi masalar, TV üniteleri, konsollar, sehpalar ve kitaplıklar. WoodenUniverse mobilya koleksiyonunu inceleyin."
+      : "Discover made-to-measure solid wood and epoxy tables, TV units, consoles, coffee tables and bookcases by WoodenUniverse.",
+    "/products",
+  );
+}
 
 export default async function ProductsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: rawLocale } = await params;
