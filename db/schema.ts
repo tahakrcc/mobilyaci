@@ -56,3 +56,10 @@ export const media = pgTable("media", {
   altEn: text("alt_en").notNull().default(""),
   createdAt: text("created_at").notNull(),
 });
+
+export const adminCredentials = pgTable("admin_credentials", {
+  id: text("id").primaryKey(),
+  passwordHash: text("password_hash").notNull(),
+  sessionVersion: text("session_version").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});

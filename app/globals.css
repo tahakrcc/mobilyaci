@@ -563,6 +563,10 @@ html, body { background: var(--wu-black); color: var(--wu-ivory); }
 .admin-sidebar nav button, .admin-sidebar nav a { color: var(--wu-smoke); }.admin-sidebar nav button:hover, .admin-sidebar nav a:hover { color: var(--wu-gold-light); background: rgba(214,166,79,.07); }.admin-sidebar nav button.active { color: #080806; background: linear-gradient(115deg, #9b6c28, #e7c369); }
 .admin-main { background: radial-gradient(circle at 85% 0%, #1a170f, #090907 38%); }
 .admin-card, .stat-card { color: var(--wu-ivory); background: #14130f; border: 1px solid var(--wu-line); box-shadow: 0 18px 60px rgba(0,0,0,.34); }
+.admin-password-settings { max-width: 680px; }
+.admin-password-settings > p { color: var(--wu-smoke); line-height: 1.6; margin-bottom: 28px; }
+.admin-password-settings form { max-width: 460px; }
+.admin-password-settings .admin-notice { margin: 24px 0 0; }
 .stat-card span, .admin-notice, .card-heading p, .empty-state { color: var(--wu-smoke); }.stat-card strong { color: var(--wu-gold-light); }
 .table-wrap { color: var(--wu-ivory); }.table-wrap th, .table-wrap td { border-color: var(--wu-line); }.table-wrap th { color: var(--wu-gold-light); background: #0b0b08; }.table-wrap td small { color: var(--wu-smoke); }.table-wrap select, .content-field input, .content-field textarea { color: var(--wu-ivory); background: #0b0b08; border-color: rgba(214,166,79,.32); color-scheme: dark; }
 .locale-tabs { background: #090907; border: 1px solid var(--wu-line); }.locale-tabs button { color: var(--wu-smoke); }.locale-tabs button.active { color: #080806; background: var(--wu-gold); }

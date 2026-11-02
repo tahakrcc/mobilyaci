@@ -5,11 +5,18 @@ const statements = [
   `CREATE TABLE IF NOT EXISTS order_events (id text PRIMARY KEY, order_id text NOT NULL REFERENCES orders(id), status text NOT NULL, public_note text NOT NULL DEFAULT '', internal_note text NOT NULL DEFAULT '', media_url text, created_at text NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS site_content (id text PRIMARY KEY, key text NOT NULL, locale text NOT NULL, type text NOT NULL DEFAULT 'text', value text NOT NULL, updated_at text NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS media (id text PRIMARY KEY, key text NOT NULL UNIQUE, filename text NOT NULL, mime_type text NOT NULL, url text NOT NULL, alt_tr text NOT NULL DEFAULT '', alt_en text NOT NULL DEFAULT '', created_at text NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS admin_credentials (id text PRIMARY KEY, password_hash text NOT NULL, session_version text NOT NULL, updated_at text NOT NULL)`,
   `CREATE INDEX IF NOT EXISTS orders_email_idx ON orders(email)`,
   `CREATE INDEX IF NOT EXISTS orders_status_idx ON orders(status)`,
   `CREATE INDEX IF NOT EXISTS order_events_order_id_idx ON order_events(order_id)`,
   `CREATE UNIQUE INDEX IF NOT EXISTS site_content_key_locale_unique ON site_content(key, locale)`,
 ];
+
+export async function ensureAdminCredentialSchema() {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error("DATABASE_URL is not configured");
+  await neon(connectionString).query(`CREATE TABLE IF NOT EXISTS admin_credentials (id text PRIMARY KEY, password_hash text NOT NULL, session_version text NOT NULL, updated_at text NOT NULL)`);
+}
 
 export async function ensureDatabaseSchema() {
   const connectionString = process.env.DATABASE_URL;

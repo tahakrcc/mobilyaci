@@ -8,6 +8,13 @@
       "when": 1791964763549,
       "tag": "0000_chemical_starjammers",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793619047770,
+      "tag": "0001_cold_mandrill",
+      "breakpoints": true
     }
   ]
 }
